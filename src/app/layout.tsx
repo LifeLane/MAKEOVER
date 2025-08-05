@@ -44,11 +44,12 @@ export default function RootLayout({
           </Sidebar>
           <SidebarInset>
             <header className="sticky top-0 z-10 flex h-14 items-center justify-between border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6 md:justify-end">
-              <SidebarTrigger className="md:hidden" />
+              <SidebarTrigger />
               {/* Could add user menu here */}
             </header>
             <main className="p-4 sm:p-6">{children}</main>
           </SidebarInset>
+          <Nav />
         </SidebarProvider>
         <Toaster />
       </body>
