@@ -65,11 +65,11 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
   return (
     <Card className="overflow-hidden shadow-lg border-2 border-accent/20">
       <div className="grid grid-cols-1 md:grid-cols-2">
-        <div className="relative h-96 md:h-auto min-h-[500px]">
+        <div className="relative aspect-square md:aspect-auto min-h-[500px]">
           <Image
             src={outfitImage || 'https://placehold.co/600x800.png'}
             alt="Suggested outfit"
-            layout="fill"
+            fill
             objectFit="cover"
             className="transition-transform duration-300 hover:scale-105"
             data-ai-hint="fashion outfit"
@@ -124,10 +124,10 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
                 </div>
             )}
             <div className="flex flex-col sm:flex-row gap-2 w-full">
-              <Button onClick={handleSave} variant="outline" className="w-full sm:w-auto">
+              <Button onClick={handleSave} variant="outline" className="w-full">
                 <Heart className="mr-2" /> Save Look
               </Button>
-              <Button onClick={handleRegenerateClick} className="w-full sm:w-auto flex-grow">
+              <Button onClick={handleRegenerateClick} className="w-full flex-grow">
                 <RefreshCw className="mr-2" /> Regenerate
               </Button>
             </div>
@@ -142,7 +142,7 @@ function LoadingSkeleton() {
   return (
     <Card className="overflow-hidden shadow-lg">
       <div className="grid grid-cols-1 md:grid-cols-2">
-        <Skeleton className="h-96 w-full md:h-[600px]" />
+        <Skeleton className="aspect-square md:aspect-auto w-full h-auto min-h-[500px]" />
         <div className="flex flex-col p-6 space-y-6">
           <Skeleton className="h-8 w-1/2" />
           <div className="space-y-4">
@@ -161,8 +161,8 @@ function LoadingSkeleton() {
           <div className="space-y-4 flex-grow">
              <Skeleton className="h-10 w-full" />
           </div>
-          <div className="flex gap-2">
-            <Skeleton className="h-10 w-28" />
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Skeleton className="h-10 w-full sm:w-28" />
             <Skeleton className="h-10 w-full flex-grow" />
           </div>
         </div>

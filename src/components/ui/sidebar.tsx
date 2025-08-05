@@ -3,14 +3,14 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
-import { PanelLeft } from "lucide-react"
+import { PanelLeft, X } from "lucide-react"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { Sheet, SheetContent } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Tooltip,
@@ -175,10 +175,16 @@ const Sidebar = React.forwardRef<
     },
     ref
   ) => {
-    const { isMobile, state } = useSidebar()
+    const { isMobile, openMobile, setOpenMobile, state } = useSidebar()
 
     if (isMobile) {
-      return null;
+      return (
+         <Sheet open={openMobile} onOpenChange={setOpenMobile}>
+          <SheetContent side={side} className="flex w-[--sidebar-width-mobile] flex-col bg-sidebar p-0 text-sidebar-foreground">
+             {children}
+          </SheetContent>
+        </Sheet>
+      );
     }
 
     if (collapsible === "none") {
@@ -228,6 +234,9 @@ const Sidebar = React.forwardRef<
               : "group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l",
             className
           )}
+          style={{
+            "--sidebar-width-mobile": SIDEBAR_WIDTH_MOBILE
+          } as React.CSSProperties}
           {...props}
         >
           <div
@@ -245,12 +254,25 @@ Sidebar.displayName = "Sidebar"
 
 const SidebarTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
-  React.ComponentProps<typeof Button>
->(({ className, onClick, ...props }, ref) => {
+  React.ComponentProps<typeof Button> & { asChild?: boolean }
+>(({ className, onClick, asChild = false, ...props }, ref) => {
   const { toggleSidebar, isMobile } = useSidebar()
 
+  const Comp = asChild ? Slot : Button;
+
   if (isMobile) {
-    return null;
+    return (
+       <SheetTrigger asChild>
+        <Comp 
+          ref={ref}
+          className={className}
+          onClick={(event) => {
+            onClick?.(event)
+          }}
+          {...props}
+        />
+       </SheetTrigger>
+    )
   }
   
   return (
@@ -272,6 +294,31 @@ const SidebarTrigger = React.forwardRef<
   )
 })
 SidebarTrigger.displayName = "SidebarTrigger"
+
+const SidebarClose = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentProps<typeof Button>
+>(({ className, onClick, ...props }, ref) => {
+  const { setOpenMobile } = useSidebar();
+  return (
+    <Button
+      ref={ref}
+      variant="ghost"
+      size="icon"
+      className={cn("h-7 w-7", className)}
+      onClick={(event) => {
+        onClick?.(event);
+        setOpenMobile(false);
+      }}
+      {...props}
+    >
+      <X />
+      <span className="sr-only">Close sidebar</span>
+    </Button>
+  );
+});
+SidebarClose.displayName = 'SidebarClose';
+
 
 const SidebarRail = React.forwardRef<
   HTMLButtonElement,
@@ -312,7 +359,6 @@ const SidebarInset = React.forwardRef<
       className={cn(
         "relative flex min-h-svh flex-1 flex-col bg-background",
         "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow",
-        "pb-16 md:pb-0",
         className
       )}
       {...props}
@@ -725,6 +771,7 @@ SidebarMenuSubButton.displayName = "SidebarMenuSubButton"
 
 export {
   Sidebar,
+  SidebarClose,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,

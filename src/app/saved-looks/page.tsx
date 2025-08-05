@@ -5,12 +5,12 @@ import Image from 'next/image';
 export default function SavedLooksPage() {
   return (
     <div className="container mx-auto">
-      <div className="mb-8">
+      <div className="mb-8 text-center sm:text-left">
         <h1 className="text-4xl font-headline font-bold text-primary">Saved Looks</h1>
         <p className="mt-2 text-lg text-foreground/80">Your collection of favorite styles.</p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {SAVED_LOOKS_DATA.map((look) => (
           <Card key={look.id} className="overflow-hidden group shadow-lg">
             <CardHeader>
