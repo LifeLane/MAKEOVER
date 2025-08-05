@@ -20,9 +20,9 @@ import { useSidebar } from '@/components/ui/sidebar';
 
 const menuItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/event-styling', label: 'Event Styling', icon: CalendarPlus },
-  { href: '/wardrobe', label: 'My Wardrobe', icon: Shirt },
-  { href: '/saved-looks', label: 'Saved Looks', icon: Heart },
+  { href: '/event-styling', label: 'Events', icon: CalendarPlus },
+  { href: '/wardrobe', label: 'Wardrobe', icon: Shirt },
+  { href: '/saved-looks', label: 'Saved', icon: Heart },
   { href: '/profile', label: 'Profile', icon: User },
 ];
 
