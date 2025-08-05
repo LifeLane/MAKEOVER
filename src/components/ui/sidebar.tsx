@@ -180,7 +180,7 @@ const Sidebar = React.forwardRef<
     if (isMobile) {
       return (
          <Sheet open={openMobile} onOpenChange={setOpenMobile}>
-          <SheetContent side={side} className="flex w-[--sidebar-width-mobile] flex-col bg-sidebar p-0 text-sidebar-foreground">
+          <SheetContent side={side} className={cn("flex w-[--sidebar-width-mobile] flex-col bg-sidebar p-0 text-sidebar-foreground", className)}>
              {children}
           </SheetContent>
         </Sheet>
@@ -253,26 +253,17 @@ const Sidebar = React.forwardRef<
 Sidebar.displayName = "Sidebar"
 
 const SidebarTrigger = React.forwardRef<
-  React.ElementRef<typeof Button>,
-  React.ComponentProps<typeof Button> & { asChild?: boolean }
->(({ className, onClick, asChild = false, ...props }, ref) => {
-  const { toggleSidebar, isMobile } = useSidebar()
-
-  const Comp = asChild ? Slot : Button;
+  HTMLButtonElement,
+  React.ComponentProps<typeof Button> & { asChild?: boolean; children?: React.ReactNode }
+>(({ className, onClick, asChild = false, children, ...props }, ref) => {
+  const { toggleSidebar, isMobile } = useSidebar();
 
   if (isMobile) {
     return (
-       <SheetTrigger asChild>
-        <Comp 
-          ref={ref}
-          className={className}
-          onClick={(event) => {
-            onClick?.(event)
-          }}
-          {...props}
-        />
-       </SheetTrigger>
-    )
+      <SheetTrigger asChild>
+        {children}
+      </SheetTrigger>
+    );
   }
   
   return (
@@ -283,29 +274,32 @@ const SidebarTrigger = React.forwardRef<
       size="icon"
       className={cn("h-7 w-7", className)}
       onClick={(event) => {
-        onClick?.(event)
-        toggleSidebar()
+        onClick?.(event);
+        toggleSidebar();
       }}
       {...props}
     >
       <PanelLeft />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
-  )
-})
-SidebarTrigger.displayName = "SidebarTrigger"
+  );
+});
+SidebarTrigger.displayName = "SidebarTrigger";
 
 const SidebarClose = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<typeof Button>
 >(({ className, onClick, ...props }, ref) => {
-  const { setOpenMobile } = useSidebar();
+  const { setOpenMobile, isMobile } = useSidebar();
+  
+  if (!isMobile) return null;
+
   return (
     <Button
       ref={ref}
       variant="ghost"
       size="icon"
-      className={cn("h-7 w-7", className)}
+      className={cn("h-7 w-7 absolute top-2 right-2", className)}
       onClick={(event) => {
         onClick?.(event);
         setOpenMobile(false);

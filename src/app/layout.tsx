@@ -40,7 +40,7 @@ export default function RootLayout({
           <Sidebar>
             <SidebarHeader className="p-4">
               <Logo />
-               <SidebarClose className="md:hidden" />
+               <SidebarClose />
             </SidebarHeader>
             <SidebarContent>
               <Nav />
@@ -48,8 +48,8 @@ export default function RootLayout({
           </Sidebar>
           <SidebarInset>
             <header className="sticky top-0 z-10 flex h-14 items-center justify-between border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6">
-              <SidebarTrigger className="md:hidden">
-                 <Button variant="ghost" size="icon">
+               <SidebarTrigger>
+                 <Button variant="ghost" size="icon" className="md:hidden">
                     <Menu />
                  </Button>
               </SidebarTrigger>
