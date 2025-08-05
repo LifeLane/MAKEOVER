@@ -3,7 +3,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
-import { PanelLeft, X } from "lucide-react"
+import { Menu, PanelLeft, X } from "lucide-react"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
@@ -91,7 +91,9 @@ const SidebarProvider = React.forwardRef<
         }
 
         // This sets the cookie to keep the sidebar state.
-        document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+        if (typeof document !== 'undefined') {
+            document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+        }
       },
       [setOpenProp, open]
     )
@@ -155,7 +157,7 @@ const SidebarProvider = React.forwardRef<
             ref={ref}
             {...props}
           >
-            {children}
+            {isMounted ? children : null}
           </div>
         </TooltipProvider>
       </SidebarContext.Provider>
@@ -183,9 +185,7 @@ const Sidebar = React.forwardRef<
     },
     ref
   ) => {
-    const { isMobile, openMobile, setOpenMobile, state, isMounted } = useSidebar()
-
-    if (!isMounted) return null;
+    const { isMobile, openMobile, setOpenMobile, state } = useSidebar()
 
     if (isMobile) {
       return (
@@ -266,33 +266,26 @@ const SidebarTrigger = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<typeof Button> & { asChild?: boolean; children?: React.ReactNode }
 >(({ className, onClick, asChild = false, children, ...props }, ref) => {
-  const { toggleSidebar, isMobile, isMounted } = useSidebar();
+  const { toggleSidebar, isMobile } = useSidebar();
   
-  if (!isMounted) {
-    return (
-      <Button variant="ghost" size="icon" className={cn("h-7 w-7", className)} disabled>
-        <PanelLeft />
-      </Button>
-    )
-  }
-
   if (isMobile) {
-    return (
+    const Comp = asChild ? Slot : Button;
+     return (
       <SheetTrigger asChild>
         {children ?? (
-          <Button
+          <Comp
             ref={ref}
             variant="ghost"
             size="icon"
-            className={cn("h-7 w-7", className)}
-            onClick={(event) => {
+            className={cn("h-10 w-10", className)}
+            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
               onClick?.(event);
             }}
             {...props}
           >
-            <PanelLeft />
+            <Menu />
             <span className="sr-only">Toggle Sidebar</span>
-          </Button>
+          </Comp>
         )}
       </SheetTrigger>
     );
@@ -304,7 +297,7 @@ const SidebarTrigger = React.forwardRef<
       data-sidebar="trigger"
       variant="ghost"
       size="icon"
-      className={cn("h-7 w-7", className)}
+      className={cn("h-10 w-10", className)}
       onClick={(event) => {
         onClick?.(event);
         toggleSidebar();
