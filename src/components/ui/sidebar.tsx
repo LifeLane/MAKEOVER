@@ -33,6 +33,7 @@ type SidebarContext = {
   openMobile: boolean
   setOpenMobile: (open: boolean) => void
   isMobile: boolean
+  isMounted: boolean
   toggleSidebar: () => void
 }
 
@@ -68,7 +69,13 @@ const SidebarProvider = React.forwardRef<
     ref
   ) => {
     const isMobile = useIsMobile()
+    const [isMounted, setIsMounted] = React.useState(false);
     const [openMobile, setOpenMobile] = React.useState(false)
+    
+    React.useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
 
     // This is the internal state of the sidebar.
     // We use openProp and setOpenProp for control from outside the component.
@@ -122,11 +129,12 @@ const SidebarProvider = React.forwardRef<
         open,
         setOpen,
         isMobile,
+        isMounted,
         openMobile,
         setOpenMobile,
         toggleSidebar,
       }),
-      [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
+      [state, open, setOpen, isMobile, isMounted, openMobile, setOpenMobile, toggleSidebar]
     )
 
     return (
@@ -161,21 +169,23 @@ const Sidebar = React.forwardRef<
   React.ComponentProps<"div"> & {
     side?: "left" | "right"
     variant?: "sidebar" | "floating" | "inset"
-    collapsible?: "offcanvas" | "icon" | "none"
+    collapsible?: "icon" | "none"
   }
 >(
   (
     {
       side = "left",
       variant = "sidebar",
-      collapsible = "offcanvas",
+      collapsible = "icon",
       className,
       children,
       ...props
     },
     ref
   ) => {
-    const { isMobile, openMobile, setOpenMobile, state } = useSidebar()
+    const { isMobile, openMobile, setOpenMobile, state, isMounted } = useSidebar()
+
+    if (!isMounted) return null;
 
     if (isMobile) {
       return (
@@ -256,17 +266,39 @@ const SidebarTrigger = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<typeof Button> & { asChild?: boolean; children?: React.ReactNode }
 >(({ className, onClick, asChild = false, children, ...props }, ref) => {
-  const { toggleSidebar, isMobile } = useSidebar();
+  const { toggleSidebar, isMobile, isMounted } = useSidebar();
+  
+  if (!isMounted) {
+    return (
+      <Button variant="ghost" size="icon" className={cn("h-7 w-7", className)} disabled>
+        <PanelLeft />
+      </Button>
+    )
+  }
 
   if (isMobile) {
     return (
       <SheetTrigger asChild>
-        {children}
+        {children ?? (
+          <Button
+            ref={ref}
+            variant="ghost"
+            size="icon"
+            className={cn("h-7 w-7", className)}
+            onClick={(event) => {
+              onClick?.(event);
+            }}
+            {...props}
+          >
+            <PanelLeft />
+            <span className="sr-only">Toggle Sidebar</span>
+          </Button>
+        )}
       </SheetTrigger>
     );
   }
   
-  return (
+  return children ?? (
     <Button
       ref={ref}
       data-sidebar="trigger"
@@ -286,13 +318,14 @@ const SidebarTrigger = React.forwardRef<
 });
 SidebarTrigger.displayName = "SidebarTrigger";
 
+
 const SidebarClose = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<typeof Button>
 >(({ className, onClick, ...props }, ref) => {
-  const { setOpenMobile, isMobile } = useSidebar();
+  const { setOpenMobile, isMobile, isMounted } = useSidebar();
   
-  if (!isMobile) return null;
+  if (!isMounted || !isMobile) return null;
 
   return (
     <Button
