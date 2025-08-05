@@ -26,3 +26,10 @@ export type WardrobeItem = {
   category: string;
   imageUrl: string;
 };
+
+export type Product = {
+  name: string;
+  price: string;
+  url: string;
+  imageUrl: string;
+};
