@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { OutfitCard } from '@/components/outfit-card';
-import { getEventOutfit } from '@/app/actions';
+import { getEventOutfit, getRegeneratedOutfit } from '@/app/actions';
 import type { EventStylingOutput } from '@/ai/flows/event-styling';
 import { useToast } from '@/hooks/use-toast';
 
@@ -54,16 +54,24 @@ export function EventStylingClient() {
     setIsLoading(false);
   }
 
-  const handleRegenerate = () => {
-    if(form.formState.isValid) {
-      onSubmit(form.getValues());
-    } else {
+  const handleRegenerate = async (feedback: string) => {
+    setIsLoading(true);
+    const result = await getRegeneratedOutfit(feedback);
+    if (result.error) {
       toast({
         variant: 'destructive',
-        title: 'Form incomplete',
-        description: 'Please fill out the form to regenerate an outfit.',
+        title: 'Error',
+        description: result.error,
+      });
+    } else {
+      setOutfit({
+        // @ts-ignore
+        ...result,
+        imageUrl: result.outfitImage,
+        outfitSuggestion: result.outfitSuggestion,
       });
     }
+    setIsLoading(false);
   };
 
   return (
@@ -151,6 +159,7 @@ export function EventStylingClient() {
           outfit={outfit}
           isLoading={isLoading}
           onRegenerate={handleRegenerate}
+          isRegenerate
         />
       )}
     </>

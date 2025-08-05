@@ -4,12 +4,13 @@ import { useState } from 'react';
 import { DailyOutfitSuggestionOutput } from '@/ai/flows/daily-outfit-suggestion';
 import { Button } from '@/components/ui/button';
 import { OutfitCard } from '@/components/outfit-card';
-import { getDailyOutfit } from '@/app/actions';
+import { getDailyOutfit, getRegeneratedOutfit } from '@/app/actions';
 import { Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { RegenerateOutfitOutput } from '@/ai/flows/outfit-regeneration';
 
 export function DashboardClient() {
-  const [outfit, setOutfit] = useState<DailyOutfitSuggestionOutput | null>(null);
+  const [outfit, setOutfit] = useState<DailyOutfitSuggestionOutput | RegenerateOutfitOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -26,6 +27,25 @@ export function DashboardClient() {
     } else {
       // @ts-ignore
       setOutfit(result);
+    }
+    setIsLoading(false);
+  };
+  
+  const handleRegenerate = async (feedback: string) => {
+    setIsLoading(true);
+    const result = await getRegeneratedOutfit(feedback);
+    if (result.error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: result.error,
+      });
+    } else {
+       setOutfit({
+        // @ts-ignore
+        ...result,
+        outfitImage: result.outfitImage
+      });
     }
     setIsLoading(false);
   };
@@ -54,7 +74,8 @@ export function DashboardClient() {
         <OutfitCard
           outfit={outfit}
           isLoading={isLoading}
-          onRegenerate={handleGetSuggestion}
+          onRegenerate={handleRegenerate}
+          isRegenerate
         />
       )}
     </div>

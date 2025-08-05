@@ -2,7 +2,7 @@
 'use server';
 import { dailyOutfitSuggestion, DailyOutfitSuggestionInput, DailyOutfitSuggestionOutput } from '@/ai/flows/daily-outfit-suggestion';
 import { eventStyling, EventStylingInput, EventStylingOutput } from '@/ai/flows/event-styling';
-import { regenerateOutfit, RegenerateOutfitInput } from '@/ai/flows/outfit-regeneration';
+import { regenerateOutfit, RegenerateOutfitInput, RegenerateOutfitOutput } from '@/ai/flows/outfit-regeneration';
 import { UserProfile } from '@/lib/types';
 import { MOCK_USER_PROFILE } from '@/lib/constants';
 
@@ -37,18 +37,11 @@ export async function getEventOutfit(data: Omit<EventStylingInput, keyof UserPro
   }
 }
 
-export async function getRegeneratedOutfit(userInput: string) {
+export async function getRegeneratedOutfit(userInput: string): Promise<ActionResponse<RegenerateOutfitOutput>> {
   const input: RegenerateOutfitInput = { userInput };
   try {
     const result = await regenerateOutfit(input);
-    // The flow returns outfitImage, let's adapt it to our EventStylingOutput for consistency in the UI
-    return {
-      outfitSuggestion: result.outfitSuggestion,
-      imageUrl: result.outfitImage,
-      itemsList: [ 'Items from regeneration...' ],
-      colorPalette: [ 'regenerated' ],
-      accessoryTips: 'New accessories...'
-    } as EventStylingOutput;
+    return result;
   } catch (error) {
     console.error(error);
     return { error: 'Failed to regenerate outfit.' };
