@@ -264,40 +264,37 @@ Sidebar.displayName = "Sidebar"
 
 const SidebarTrigger = React.forwardRef<
   HTMLButtonElement,
-  React.ComponentProps<typeof Button> & { asChild?: boolean; children?: React.ReactNode }
->(({ className, onClick, asChild = false, children, ...props }, ref) => {
+  React.ComponentProps<typeof Button> & { asChild?: boolean }
+>(({ className, onClick, asChild = false, ...props }, ref) => {
   const { toggleSidebar, isMobile } = useSidebar();
   
   if (isMobile) {
-    const Comp = asChild ? Slot : Button;
      return (
-      <SheetTrigger asChild>
-        {children ?? (
-          <Comp
-            ref={ref}
-            variant="ghost"
-            size="icon"
-            className={cn("h-10 w-10", className)}
-            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-              onClick?.(event);
-            }}
-            {...props}
-          >
-            <Menu />
-            <span className="sr-only">Toggle Sidebar</span>
-          </Comp>
-        )}
-      </SheetTrigger>
+        <SheetTrigger asChild>
+          <Button
+              ref={ref}
+              variant="ghost"
+              size="icon"
+              className={cn("h-10 w-10 md:hidden", className)}
+              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                onClick?.(event);
+              }}
+              {...props}
+            >
+              <Menu />
+              <span className="sr-only">Toggle Sidebar</span>
+            </Button>
+        </SheetTrigger>
     );
   }
   
-  return children ?? (
+  return (
     <Button
       ref={ref}
       data-sidebar="trigger"
       variant="ghost"
       size="icon"
-      className={cn("h-10 w-10", className)}
+      className={cn("h-10 w-10 hidden md:inline-flex", className)}
       onClick={(event) => {
         onClick?.(event);
         toggleSidebar();
