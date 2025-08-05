@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Tooltip,
@@ -18,6 +18,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { Logo } from "@/components/logo"
+import { Nav } from "@/components/nav"
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
@@ -30,8 +32,6 @@ type SidebarContext = {
   state: "expanded" | "collapsed"
   open: boolean
   setOpen: (open: boolean) => void
-  openMobile: boolean
-  setOpenMobile: (open: boolean) => void
   isMobile: boolean
   isMounted: boolean
   toggleSidebar: () => void
@@ -70,15 +70,13 @@ const SidebarProvider = React.forwardRef<
   ) => {
     const isMobile = useIsMobile()
     const [isMounted, setIsMounted] = React.useState(false);
-    const [openMobile, setOpenMobile] = React.useState(false)
-    
+    const [openMobile, setOpenMobile] = React.useState(false);
+
     React.useEffect(() => {
         setIsMounted(true);
     }, []);
 
 
-    // This is the internal state of the sidebar.
-    // We use openProp and setOpenProp for control from outside the component.
     const [_open, _setOpen] = React.useState(defaultOpen)
     const open = openProp ?? _open
     const setOpen = React.useCallback(
@@ -90,7 +88,6 @@ const SidebarProvider = React.forwardRef<
           _setOpen(openState)
         }
 
-        // This sets the cookie to keep the sidebar state.
         if (typeof document !== 'undefined') {
             document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
         }
@@ -98,14 +95,10 @@ const SidebarProvider = React.forwardRef<
       [setOpenProp, open]
     )
 
-    // Helper to toggle the sidebar.
     const toggleSidebar = React.useCallback(() => {
-      return isMobile
-        ? setOpenMobile((open) => !open)
-        : setOpen((open) => !open)
-    }, [isMobile, setOpen, setOpenMobile])
+        isMobile ? setOpenMobile((v) => !v) : setOpen((v) => !v);
+    }, [isMobile, setOpen]);
 
-    // Adds a keyboard shortcut to toggle the sidebar.
     React.useEffect(() => {
       const handleKeyDown = (event: KeyboardEvent) => {
         if (
@@ -121,8 +114,6 @@ const SidebarProvider = React.forwardRef<
       return () => window.removeEventListener("keydown", handleKeyDown)
     }, [toggleSidebar])
 
-    // We add a state so that we can do data-state="expanded" or "collapsed".
-    // This makes it easier to style the sidebar with Tailwind classes.
     const state = open ? "expanded" : "collapsed"
 
     const contextValue = React.useMemo<SidebarContext>(
@@ -132,11 +123,9 @@ const SidebarProvider = React.forwardRef<
         setOpen,
         isMobile,
         isMounted,
-        openMobile,
-        setOpenMobile,
         toggleSidebar,
       }),
-      [state, open, setOpen, isMobile, isMounted, openMobile, setOpenMobile, toggleSidebar]
+      [state, open, setOpen, isMobile, isMounted, toggleSidebar]
     )
 
     return (
@@ -151,13 +140,15 @@ const SidebarProvider = React.forwardRef<
               } as React.CSSProperties
             }
             className={cn(
-              "group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar",
+              "group/sidebar-wrapper flex min-h-svh w-full",
               className
             )}
             ref={ref}
             {...props}
           >
-            {isMounted ? children : null}
+              <Sheet open={isMobile && openMobile} onOpenChange={setOpenMobile}>
+                  {children}
+              </Sheet>
           </div>
         </TooltipProvider>
       </SidebarContext.Provider>
@@ -185,15 +176,15 @@ const Sidebar = React.forwardRef<
     },
     ref
   ) => {
-    const { isMobile, openMobile, setOpenMobile, state } = useSidebar()
+    const { isMobile, isMounted, state } = useSidebar()
+    
+    if (!isMounted) return null;
 
     if (isMobile) {
       return (
-         <Sheet open={openMobile} onOpenChange={setOpenMobile}>
-          <SheetContent side={side} className={cn("flex w-[--sidebar-width-mobile] flex-col bg-sidebar p-0 text-sidebar-foreground", className)}>
+         <SheetContent side={side} className={cn("flex w-[--sidebar-width-mobile] flex-col bg-sidebar p-0 text-sidebar-foreground", className)}>
              {children}
-          </SheetContent>
-        </Sheet>
+         </SheetContent>
       );
     }
 
@@ -215,46 +206,22 @@ const Sidebar = React.forwardRef<
     return (
       <div
         ref={ref}
-        className="group peer hidden md:block text-sidebar-foreground"
+        className={cn(
+          "group peer text-sidebar-foreground transition-[width]",
+          "data-[state=expanded]:w-[var(--sidebar-width)] data-[state=collapsed]:w-[var(--sidebar-width-icon)]",
+          className
+        )}
         data-state={state}
         data-collapsible={state === "collapsed" ? collapsible : ""}
         data-variant={variant}
         data-side={side}
+        {...props}
       >
-        {/* This is what handles the sidebar gap on desktop */}
         <div
-          className={cn(
-            "duration-200 relative h-svh w-[--sidebar-width] bg-transparent transition-[width] ease-linear",
-            "group-data-[collapsible=offcanvas]:w-0",
-            "group-data-[side=right]:rotate-180",
-            variant === "floating" || variant === "inset"
-              ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]"
-              : "group-data-[collapsible=icon]:w-[--sidebar-width-icon]"
-          )}
-        />
-        <div
-          className={cn(
-            "duration-200 fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width] ease-linear md:flex",
-            side === "left"
-              ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
-              : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
-            // Adjust the padding for floating and inset variants.
-            variant === "floating" || variant === "inset"
-              ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]"
-              : "group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l",
-            className
-          )}
-          style={{
-            "--sidebar-width-mobile": SIDEBAR_WIDTH_MOBILE
-          } as React.CSSProperties}
-          {...props}
+          data-sidebar="sidebar"
+          className="flex h-full flex-col bg-sidebar"
         >
-          <div
-            data-sidebar="sidebar"
-            className="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow"
-          >
-            {children}
-          </div>
+          {children}
         </div>
       </div>
     )
@@ -265,9 +232,11 @@ Sidebar.displayName = "Sidebar"
 const SidebarTrigger = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<typeof Button> & { asChild?: boolean }
->(({ className, onClick, asChild = false, ...props }, ref) => {
-  const { toggleSidebar, isMobile } = useSidebar();
+>(({ className, ...props }, ref) => {
+  const { toggleSidebar, isMobile, isMounted } = useSidebar();
   
+  if (!isMounted) return null;
+
   if (isMobile) {
      return (
         <SheetTrigger asChild>
@@ -275,10 +244,7 @@ const SidebarTrigger = React.forwardRef<
               ref={ref}
               variant="ghost"
               size="icon"
-              className={cn("h-10 w-10 md:hidden", className)}
-              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-                onClick?.(event);
-              }}
+              className={cn("h-10 w-10", className)}
               {...props}
             >
               <Menu />
@@ -294,11 +260,8 @@ const SidebarTrigger = React.forwardRef<
       data-sidebar="trigger"
       variant="ghost"
       size="icon"
-      className={cn("h-10 w-10 hidden md:inline-flex", className)}
-      onClick={(event) => {
-        onClick?.(event);
-        toggleSidebar();
-      }}
+      className={cn("h-10 w-10", className)}
+      onClick={toggleSidebar}
       {...props}
     >
       <PanelLeft />
@@ -312,26 +275,24 @@ SidebarTrigger.displayName = "SidebarTrigger";
 const SidebarClose = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<typeof Button>
->(({ className, onClick, ...props }, ref) => {
-  const { setOpenMobile, isMobile, isMounted } = useSidebar();
+>(({ className, ...props }, ref) => {
+  const { isMobile, isMounted } = useSidebar();
   
   if (!isMounted || !isMobile) return null;
 
   return (
-    <Button
-      ref={ref}
-      variant="ghost"
-      size="icon"
-      className={cn("h-7 w-7 absolute top-2 right-2", className)}
-      onClick={(event) => {
-        onClick?.(event);
-        setOpenMobile(false);
-      }}
-      {...props}
-    >
-      <X />
-      <span className="sr-only">Close sidebar</span>
-    </Button>
+    <SheetClose asChild>
+      <Button
+        ref={ref}
+        variant="ghost"
+        size="icon"
+        className={cn("h-7 w-7 absolute top-2 right-2", className)}
+        {...props}
+      >
+        <X />
+        <span className="sr-only">Close sidebar</span>
+      </Button>
+    </SheetClose>
   );
 });
 SidebarClose.displayName = 'SidebarClose';
