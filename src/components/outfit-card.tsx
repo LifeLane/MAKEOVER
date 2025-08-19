@@ -13,9 +13,9 @@ import { RegenerateOutfitOutput } from '@/ai/flows/outfit-regeneration';
 import { EventStylingOutput } from '@/ai/flows/event-styling';
 import { Input } from './ui/input';
 import { useState, useEffect } from 'react';
-import type { Product } from '@/lib/types';
-import { getProductsForOutfit } from '@/app/actions';
-import { MOCK_USER_PROFILE } from '@/lib/constants';
+import type { Product, UserProfile } from '@/lib/types';
+import { getProductsForOutfit, saveGeneratedLook, fetchUserProfile } from '@/app/actions';
+import { DEFAULT_USER_PROFILE } from '@/lib/constants';
 
 type Outfit = DailyOutfitSuggestionOutput | RegenerateOutfitOutput | EventStylingOutput;
 
@@ -31,6 +31,15 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
   const [regenerationInput, setRegenerationInput] = useState('');
   const [products, setProducts] = useState<Product[]>([]);
   const [isFetchingProducts, setIsFetchingProducts] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile>(DEFAULT_USER_PROFILE);
+
+  useEffect(() => {
+    fetchUserProfile().then(res => {
+      if (!res.error) {
+        setUserProfile(res);
+      }
+    })
+  }, []);
 
   const outfitImage = outfit && ('outfitImage' in outfit ? outfit.outfitImage : 'imageUrl' in outfit ? outfit.imageUrl : '');
   const itemsList = outfit && 'itemsList' in outfit ? outfit.itemsList : [];
@@ -42,7 +51,7 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
     if (outfit && 'itemsList' in outfit && outfit.itemsList && outfit.itemsList.length > 0) {
       setIsFetchingProducts(true);
       setProducts([]);
-      getProductsForOutfit({items: outfit.itemsList, gender: MOCK_USER_PROFILE.gender})
+      getProductsForOutfit({items: outfit.itemsList, gender: userProfile.gender})
         .then(result => {
           if (!result.error) {
             setProducts(result.products);
@@ -58,13 +67,33 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
           setIsFetchingProducts(false);
         });
     }
-  }, [outfit, toast]);
+  }, [outfit, userProfile.gender, toast]);
 
-  const handleSave = () => {
-    toast({
-      title: 'Look Saved!',
-      description: 'You can find your saved looks in the "Saved Looks" section.',
-    });
+  const handleSave = async () => {
+    if (!outfit) return;
+
+    const lookToSave = {
+      imageUrl: outfitImage || '',
+      outfitSuggestion: outfitSuggestion,
+      itemsList: itemsList || [],
+      colorPalette: colorPalette || [],
+      accessoryTips: accessoryTips || '',
+      occasion: 'daily', // This could be improved to be more dynamic
+    };
+
+    const result = await saveGeneratedLook(lookToSave);
+     if (result.error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error Saving Look',
+        description: result.error,
+      });
+    } else {
+      toast({
+        title: 'Look Saved!',
+        description: 'You can find your saved looks in the "Saved" section.',
+      });
+    }
   };
 
   const handleRegenerateClick = () => {

@@ -1,6 +1,7 @@
 import type { UserProfile, SavedLook, WardrobeItem } from './types';
 
-export const MOCK_USER_PROFILE: UserProfile = {
+// This will be the default for a new user profile.
+export const DEFAULT_USER_PROFILE: UserProfile = {
   name: '',
   photoUrl: '',
   gender: 'female',
@@ -12,6 +13,6 @@ export const MOCK_USER_PROFILE: UserProfile = {
   budget: 'medium',
 };
 
+// Mock data is no longer needed.
 export const SAVED_LOOKS_DATA: SavedLook[] = [];
-
 export const WARDROBE_ITEMS_DATA: WardrobeItem[] = [];

@@ -4,15 +4,22 @@ import { dailyOutfitSuggestion, DailyOutfitSuggestionInput, DailyOutfitSuggestio
 import { eventStyling, EventStylingInput, EventStylingOutput } from '@/ai/flows/event-styling';
 import { regenerateOutfit, RegenerateOutfitInput, RegenerateOutfitOutput } from '@/ai/flows/outfit-regeneration';
 import { findProducts, FindProductsOutput, FindProductsInput } from '@/ai/flows/find-products';
-import { UserProfile, Product } from '@/lib/types';
-import { MOCK_USER_PROFILE } from '@/lib/constants';
+import { UserProfile, Product, SavedLook } from '@/lib/types';
+import { DEFAULT_USER_PROFILE } from '@/lib/constants';
+import { getUserProfile, saveUserProfile, getSavedLooks, getWardrobeItems, saveLook, saveWardrobeItem } from '@/services/firestore';
 
 type ActionResponse<T> = (T & { error?: never }) | { error: string };
 
+async function getProfile(): Promise<UserProfile> {
+  const profile = await getUserProfile();
+  return profile || DEFAULT_USER_PROFILE;
+}
+
 export async function getDailyOutfit(): Promise<ActionResponse<DailyOutfitSuggestionOutput>> {
+  const userProfile = await getProfile();
   const input: DailyOutfitSuggestionInput = {
-    ...MOCK_USER_PROFILE,
-    age: MOCK_USER_PROFILE.age || 25,
+    ...userProfile,
+    age: userProfile.age || 25,
     weather: 'Sunny, 25°C', 
     trendingStyles: ['oversized blazers', 'wide-leg trousers'],
   };
@@ -26,9 +33,10 @@ export async function getDailyOutfit(): Promise<ActionResponse<DailyOutfitSugges
 }
 
 export async function getEventOutfit(data: Omit<EventStylingInput, keyof UserProfile>): Promise<ActionResponse<EventStylingOutput>> {
+   const userProfile = await getProfile();
    const input: EventStylingInput = {
-    ...MOCK_USER_PROFILE,
-    age: MOCK_USER_PROFILE.age || 25,
+    ...userProfile,
+    age: userProfile.age || 25,
     ...data,
   };
   try {
@@ -60,4 +68,44 @@ export async function getProductsForOutfit(data: {items: string[], gender: UserP
     console.error(error);
     return { error: 'Failed to find products for outfit.' };
   }
+}
+
+export async function saveUserProfileData(profile: UserProfile): Promise<ActionResponse<{}>> {
+  try {
+    await saveUserProfile(profile);
+    return {};
+  } catch (error) {
+    console.error(error);
+    return { error: 'Failed to save user profile.' };
+  }
+}
+
+export async function fetchUserProfile(): Promise<ActionResponse<UserProfile>> {
+  try {
+    const profile = await getUserProfile();
+    return profile || DEFAULT_USER_PROFILE;
+  } catch (error) {
+    console.error(error);
+    return { error: 'Failed to fetch user profile.' };
+  }
+}
+
+export async function fetchSavedLooks(): Promise<ActionResponse<{looks: SavedLook[]}>> {
+  try {
+    const looks = await getSavedLooks();
+    return { looks };
+  } catch (error) {
+    console.error(error);
+    return { error: 'Failed to fetch saved looks.' };
+  }
+}
+
+export async function saveGeneratedLook(look: Omit<SavedLook, 'id'>): Promise<ActionResponse<{lookId: string}>> {
+    try {
+        const lookId = await saveLook(look);
+        return { lookId };
+    } catch (error) {
+        console.error(error);
+        return { error: 'Failed to save look.' };
+    }
 }

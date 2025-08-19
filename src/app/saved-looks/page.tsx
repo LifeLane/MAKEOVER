@@ -1,8 +1,61 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { SAVED_LOOKS_DATA } from '@/lib/constants';
+import { SavedLook } from '@/lib/types';
+import { fetchSavedLooks } from '@/app/actions';
 import Image from 'next/image';
+import { useToast } from '@/hooks/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function SavedLooksPage() {
+  const [looks, setLooks] = useState<SavedLook[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const loadLooks = async () => {
+      setIsLoading(true);
+      const result = await fetchSavedLooks();
+      if (result.error) {
+        toast({
+          variant: 'destructive',
+          title: 'Error fetching saved looks',
+          description: result.error,
+        });
+      } else {
+        setLooks(result.looks);
+      }
+      setIsLoading(false);
+    };
+    loadLooks();
+  }, [toast]);
+  
+  if (isLoading) {
+    return (
+       <div className="container mx-auto">
+        <div className="mb-8 text-center sm:text-left">
+          <h1 className="text-4xl font-headline font-bold text-primary">Saved Looks</h1>
+          <p className="mt-2 text-lg text-foreground/80">Your collection of favorite styles.</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[...Array(3)].map((_, i) => (
+                <Card key={i} className="overflow-hidden group shadow-lg">
+                    <CardHeader><Skeleton className="h-6 w-3/4" /></CardHeader>
+                    <CardContent className="p-0">
+                        <Skeleton className="relative aspect-[4/5] w-full" />
+                        <div className="p-4 space-y-2">
+                           <Skeleton className="h-4 w-full" />
+                           <Skeleton className="h-4 w-2/3" />
+                        </div>
+                    </CardContent>
+                </Card>
+            ))}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="container mx-auto">
       <div className="mb-8 text-center sm:text-left">
@@ -10,9 +63,9 @@ export default function SavedLooksPage() {
         <p className="mt-2 text-lg text-foreground/80">Your collection of favorite styles.</p>
       </div>
       
-      {SAVED_LOOKS_DATA.length > 0 ? (
+      {looks.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {SAVED_LOOKS_DATA.map((look) => (
+          {looks.map((look) => (
             <Card key={look.id} className="overflow-hidden group shadow-lg">
               <CardHeader>
                 <CardTitle className="font-headline text-xl">{look.occasion}</CardTitle>

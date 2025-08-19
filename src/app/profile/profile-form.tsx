@@ -1,9 +1,10 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { MOCK_USER_PROFILE } from '@/lib/constants';
+import { DEFAULT_USER_PROFILE } from '@/lib/constants';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -13,12 +14,14 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
+import { saveUserProfileData, fetchUserProfile } from '@/app/actions';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name is required'),
-  photoUrl: z.string().url('Must be a valid URL').optional(),
+  photoUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   gender: z.enum(['male', 'female', 'other', '']),
-  age: z.coerce.number().min(13, 'You must be at least 13').max(100),
+  age: z.coerce.number().min(13, 'You must be at least 13').max(100).optional().or(z.literal('')),
   skinTone: z.string().min(2, 'Skin tone is required'),
   bodyType: z.string().min(2, 'Body type is required'),
   stylePreferences: z.string().transform(val => val.split(',').map(s => s.trim()).filter(Boolean)),
@@ -31,18 +34,74 @@ export function ProfileForm() {
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-        ...MOCK_USER_PROFILE,
-        stylePreferences: MOCK_USER_PROFILE.stylePreferences.join(', '),
-        occasionTypes: MOCK_USER_PROFILE.occasionTypes.join(', '),
+        ...DEFAULT_USER_PROFILE,
+        stylePreferences: DEFAULT_USER_PROFILE.stylePreferences.join(', '),
+        occasionTypes: DEFAULT_USER_PROFILE.occasionTypes.join(', '),
     },
   });
 
-  function onSubmit(values: z.infer<typeof profileSchema>) {
-    console.log(values);
-    toast({
-      title: "Profile Updated!",
-      description: "Your fashion profile has been successfully saved.",
-    });
+  useEffect(() => {
+    async function loadProfile() {
+      const result = await fetchUserProfile();
+      if (result.error) {
+        toast({
+          variant: 'destructive',
+          title: "Error fetching profile",
+          description: result.error,
+        });
+      } else if (result) {
+        form.reset({
+          ...result,
+          stylePreferences: result.stylePreferences?.join(', ') || '',
+          occasionTypes: result.occasionTypes?.join(', ') || '',
+        });
+      }
+    }
+    loadProfile();
+  }, [form, toast]);
+
+
+  async function onSubmit(values: z.infer<typeof profileSchema>) {
+    const result = await saveUserProfileData(values);
+    if (result.error) {
+       toast({
+        variant: 'destructive',
+        title: "Error saving profile",
+        description: result.error,
+      });
+    } else {
+      toast({
+        title: "Profile Updated!",
+        description: "Your fashion profile has been successfully saved.",
+      });
+    }
+  }
+
+  if (form.formState.isLoading) {
+    return (
+       <Card className="max-w-4xl mx-auto shadow-lg">
+          <CardHeader><CardTitle className="font-headline text-2xl text-primary">Edit Profile</CardTitle></CardHeader>
+          <CardContent className="space-y-8">
+            <div className="flex items-center gap-6">
+              <Skeleton className="h-24 w-24 rounded-full" />
+              <Skeleton className="h-10 w-32" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-20 w-full" />
+          </CardContent>
+          <CardFooter>
+            <Skeleton className="h-10 w-32" />
+          </CardFooter>
+       </Card>
+    )
   }
 
   return (
@@ -55,7 +114,7 @@ export function ProfileForm() {
           <CardContent className="space-y-8">
             <div className="flex items-center gap-6">
               <Avatar className="h-24 w-24">
-                <AvatarImage src={form.watch('photoUrl')} />
+                <AvatarImage src={form.watch('photoUrl') || ''} />
                 <AvatarFallback>
                   {form.watch('name')?.charAt(0) || 'U'}
                 </AvatarFallback>
@@ -127,7 +186,9 @@ export function ProfileForm() {
 
           </CardContent>
           <CardFooter>
-            <Button type="submit">Save Changes</Button>
+            <Button type="submit" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? 'Saving...' : 'Save Changes'}
+            </Button>
           </CardFooter>
         </form>
       </Form>
