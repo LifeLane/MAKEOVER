@@ -16,7 +16,7 @@ const getProductTool = ai.defineTool(
     description: 'Get details for a specific clothing or accessory item.',
     inputSchema: z.object({
       itemName: z.string().describe('The clothing item to search for. e.g., "blue denim jacket"'),
-      gender: z.enum(['male', 'female', 'other', '']).describe("The user's gender to determine the shopping link."),
+      gender: z.enum(['male', 'female', 'other', '']).describe("The user's gender to help refine the search."),
     }),
     outputSchema: z.object({
         name: z.string(),
@@ -26,16 +26,8 @@ const getProductTool = ai.defineTool(
     }),
   },
   async (input) => {
-    let baseUrl = 'https://www.amazon.com/s?k=';
-    if (input.gender === 'female') {
-        baseUrl = 'https://amzn.to/46YSKh2';
-    } else if (input.gender === 'male') {
-        baseUrl = 'https://amzn.to/45n6hOe';
-    }
-
-    const searchUrl = input.gender === 'female' || input.gender === 'male' 
-        ? baseUrl 
-        : `${baseUrl}${encodeURIComponent(input.itemName)}`;
+    const searchTerm = `${input.gender} ${input.itemName}`.trim();
+    const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(searchTerm)}&tbm=shop`;
 
     const imageResponse = await ai.generate({
         model: 'googleai/gemini-2.0-flash-preview-image-generation',
@@ -47,7 +39,7 @@ const getProductTool = ai.defineTool(
 
     return {
         name: input.itemName,
-        price: "Check price on Amazon",
+        price: "Check price on Google",
         url: searchUrl,
         imageUrl: imageResponse.media?.url || `https://placehold.co/300x400.png?text=${encodeURIComponent(input.itemName)}`,
     };
