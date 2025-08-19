@@ -14,7 +14,7 @@ import { EventStylingOutput } from '@/ai/flows/event-styling';
 import { Input } from './ui/input';
 import { useState, useEffect } from 'react';
 import type { Product, UserProfile } from '@/lib/types';
-import { getProductsForOutfit, saveGeneratedLook, fetchUserProfile } from '@/app/actions';
+import { getProductsForOutfit, saveGeneratedLook, fetchUserProfile, fetchAccessoryTips } from '@/app/actions';
 import { DEFAULT_USER_PROFILE } from '@/lib/constants';
 
 type Outfit = DailyOutfitSuggestionOutput | RegenerateOutfitOutput | EventStylingOutput;
@@ -32,6 +32,8 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
   const [products, setProducts] = useState<Product[]>([]);
   const [isFetchingProducts, setIsFetchingProducts] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile>(DEFAULT_USER_PROFILE);
+  const [accessoryTips, setAccessoryTips] = useState<string | null>(null);
+  const [isFetchingTips, setIsFetchingTips] = useState(false);
 
   useEffect(() => {
     fetchUserProfile().then(res => {
@@ -44,7 +46,6 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
   const outfitImage = outfit && ('outfitImage' in outfit ? outfit.outfitImage : 'imageUrl' in outfit ? outfit.imageUrl : '');
   const itemsList = outfit && 'itemsList' in outfit ? outfit.itemsList : [];
   const colorPalette = outfit && 'colorPalette' in outfit ? outfit.colorPalette : [];
-  const accessoryTips = outfit && 'accessoryTips' in outfit ? outfit.accessoryTips : 'No tips available.';
   const outfitSuggestion = outfit && 'outfitSuggestion' in outfit ? outfit.outfitSuggestion : "Today's Look";
 
   useEffect(() => {
@@ -66,8 +67,22 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
         .finally(() => {
           setIsFetchingProducts(false);
         });
+      
+      setIsFetchingTips(true);
+      setAccessoryTips(null);
+      fetchAccessoryTips({
+        outfitDescription: outfit.outfitSuggestion,
+        userPreferences: userProfile.stylePreferences.join(', '),
+      }).then(result => {
+        if(!result.error) {
+            setAccessoryTips(result.accessoryTips);
+        }
+      }).finally(() => {
+        setIsFetchingTips(false);
+      })
+
     }
-  }, [outfit, userProfile.gender, toast]);
+  }, [outfit, userProfile.gender, userProfile.stylePreferences, toast]);
 
   const handleSave = async () => {
     if (!outfit) return;
@@ -166,14 +181,14 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
                   )}
                 </AccordionContent>
               </AccordionItem>
-              {accessoryTips && (
               <AccordionItem value="item-2">
                 <AccordionTrigger className="font-semibold flex items-center gap-2"><Wand2 size={18}/> Accessory Tips</AccordionTrigger>
                 <AccordionContent className="text-foreground/80">
-                  {accessoryTips}
+                  {isFetchingTips && <Skeleton className="h-10 w-full" />}
+                  {accessoryTips && !isFetchingTips && <p>{accessoryTips}</p>}
+                  {!accessoryTips && !isFetchingTips && <p>No tips available.</p>}
                 </AccordionContent>
               </AccordionItem>
-              )}
               <AccordionItem value="item-3">
                 <AccordionTrigger className="font-semibold flex items-center gap-2"><ShoppingBag size={18}/> Shop the Look</AccordionTrigger>
                 <AccordionContent>

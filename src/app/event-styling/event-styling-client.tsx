@@ -14,6 +14,7 @@ import { OutfitCard } from '@/components/outfit-card';
 import { getEventOutfit, getRegeneratedOutfit } from '@/app/actions';
 import type { EventStylingOutput } from '@/ai/flows/event-styling';
 import { useToast } from '@/hooks/use-toast';
+import type { RegenerateOutfitOutput } from '@/ai/flows/outfit-regeneration';
 
 const formSchema = z.object({
   occasion: z.string().min(2, { message: 'Occasion is required.' }),
@@ -23,7 +24,7 @@ const formSchema = z.object({
 });
 
 export function EventStylingClient() {
-  const [outfit, setOutfit] = useState<EventStylingOutput | null>(null);
+  const [outfit, setOutfit] = useState<EventStylingOutput | RegenerateOutfitOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -48,7 +49,6 @@ export function EventStylingClient() {
         description: result.error,
       });
     } else {
-      // @ts-ignore
       setOutfit(result);
     }
     setIsLoading(false);
@@ -56,7 +56,10 @@ export function EventStylingClient() {
 
   const handleRegenerate = async (feedback: string) => {
     setIsLoading(true);
-    const result = await getRegeneratedOutfit(feedback);
+    const currentSuggestion = outfit ? ('outfitSuggestion' in outfit ? outfit.outfitSuggestion : '') : '';
+    const regeneratePrompt = `Based on the last suggestion "${currentSuggestion}", the user wants this change: "${feedback}". Please generate a new outfit.`;
+
+    const result = await getRegeneratedOutfit(regeneratePrompt);
     if (result.error) {
       toast({
         variant: 'destructive',

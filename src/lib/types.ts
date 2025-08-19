@@ -33,3 +33,12 @@ export type Product = {
   url: string;
   imageUrl: string;
 };
+
+export type Outfit = {
+    outfitSuggestion: string;
+    itemsList: string[];
+    colorPalette: string[];
+    outfitImage?: string;
+    imageUrl?: string;
+    accessoryTips?: string;
+}

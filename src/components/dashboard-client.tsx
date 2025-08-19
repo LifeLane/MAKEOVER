@@ -9,6 +9,7 @@ import { Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { RegenerateOutfitOutput } from '@/ai/flows/outfit-regeneration';
 import { EventStylingOutput } from '@/ai/flows/event-styling';
+import { EmptyState } from './empty-state';
 
 export function DashboardClient() {
   const [outfit, setOutfit] = useState<DailyOutfitSuggestionOutput | RegenerateOutfitOutput | EventStylingOutput | null>(null);
@@ -33,7 +34,10 @@ export function DashboardClient() {
   
   const handleRegenerate = async (feedback: string) => {
     setIsLoading(true);
-    const result = await getRegeneratedOutfit(feedback);
+    const currentSuggestion = outfit ? ('outfitSuggestion' in outfit ? outfit.outfitSuggestion : '') : '';
+    const regeneratePrompt = `Based on the last suggestion "${currentSuggestion}", the user wants this change: "${feedback}". Please generate a new outfit.`;
+
+    const result = await getRegeneratedOutfit(regeneratePrompt);
     if (result.error) {
       toast({
         variant: 'destructive',
@@ -42,6 +46,7 @@ export function DashboardClient() {
       });
     } else {
        setOutfit({
+        // @ts-ignore
         ...result,
         imageUrl: result.outfitImage,
         outfitSuggestion: result.outfitSuggestion,
@@ -62,12 +67,16 @@ export function DashboardClient() {
       </div>
       
       {!outfit && !isLoading && (
-        <div className="flex justify-center">
-          <Button size="lg" onClick={handleGetSuggestion}>
-            <Wand2 className="mr-2 h-5 w-5" />
-            Get Today's Suggestion
-          </Button>
-        </div>
+        <EmptyState
+            title="Get Your Daily Look"
+            description="Click the button to generate a personalized outfit suggestion just for you."
+            icon={<Wand2 className="w-12 h-12" />}
+        >
+            <Button size="lg" onClick={handleGetSuggestion}>
+                <Wand2 className="mr-2 h-5 w-5" />
+                Get Today's Suggestion
+            </Button>
+        </EmptyState>
       )}
 
       {(isLoading || outfit) && (

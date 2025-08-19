@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -24,6 +23,7 @@ import { fetchWardrobeItems, addWardrobeItem } from '@/app/actions';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { EmptyState } from '@/components/empty-state';
 
 const newItemSchema = z.object({
   name: z.string().min(2, { message: 'Item name is required.' }),
@@ -48,7 +48,7 @@ export function WardrobeClient() {
   });
 
   const loadItems = async () => {
-    setIsLoading(true);
+    // No need to set loading true here if we want to avoid flicker on add
     const result = await fetchWardrobeItems();
     if (result.error) {
       toast({
@@ -63,8 +63,9 @@ export function WardrobeClient() {
   };
 
   useEffect(() => {
+    setIsLoading(true);
     loadItems();
-  }, [toast]);
+  }, []);
 
   const onAddItem: SubmitHandler<NewItemForm> = async (data) => {
     const result = await addWardrobeItem(data);
@@ -177,17 +178,16 @@ export function WardrobeClient() {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center text-center py-16">
-          <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-            <Shirt className="w-12 h-12 text-primary" />
-          </div>
-          <h2 className="text-2xl font-bold font-headline">Your Wardrobe is Empty</h2>
-          <p className="mt-2 text-muted-foreground">Upload items from your closet to get started.</p>
+        <EmptyState
+            title="Your Wardrobe is Empty"
+            description="Upload items from your closet to get started."
+            icon={<Shirt className="w-12 h-12" />}
+        >
           <Button className="mt-6" onClick={() => setIsFormOpen(true)}>
             <Upload className="mr-2 h-4 w-4" />
             Upload Your First Item
           </Button>
-        </div>
+        </EmptyState>
       )}
     </>
   );

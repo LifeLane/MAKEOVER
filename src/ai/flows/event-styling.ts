@@ -9,6 +9,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { WardrobeItem } from '@/lib/types';
 
 const EventStylingInputSchema = z.object({
   gender: z.string().describe('The gender of the user.'),
@@ -20,6 +21,12 @@ const EventStylingInputSchema = z.object({
   budget: z.string().describe('The budget range for the outfit.'),
   weather: z.string().describe('The current weather conditions.'),
   mood: z.string().describe('The desired mood or theme for the outfit.'),
+  wardrobeItems: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+    category: z.string(),
+    imageUrl: z.string(),
+  })).describe('A list of items currently in the user\'s wardrobe.'),
 });
 export type EventStylingInput = z.infer<typeof EventStylingInputSchema>;
 
@@ -27,7 +34,6 @@ const EventStylingOutputSchema = z.object({
   outfitSuggestion: z.string().describe('A detailed outfit suggestion for the event.'),
   itemsList: z.array(z.string()).describe('A list of clothing items for the outfit.'),
   colorPalette: z.array(z.string()).describe('A suggested color palette for the outfit.'),
-  accessoryTips: z.string().describe('Accessory tips to complement the outfit.'),
   imageUrl: z.string().describe('URL of an image of the generated outfit.'),
 });
 export type EventStylingOutput = z.infer<typeof EventStylingOutputSchema>;
@@ -43,13 +49,23 @@ const textGenerationPrompt = ai.definePrompt({
     outfitSuggestion: z.string().describe('A detailed outfit suggestion for the event.'),
     itemsList: z.array(z.string()).describe('A list of clothing items for the outfit.'),
     colorPalette: z.array(z.string()).describe('A suggested color palette for the outfit.'),
-    accessoryTips: z.string().describe('Accessory tips to complement the outfit.'),
   })},
   prompt: `You are a personal stylist. Suggest a complete outfit for a
 {{{age}}}-year-old {{{gender}}}, {{{bodyType}}} build, {{{skinTone}}} skin,
 who prefers {{{stylePreferences}}} style for a {{{occasion}}} event.
 The budget is {{{budget}}}, the weather is {{{weather}}}, and the mood/theme is {{{mood}}}.
-Include clothing items, colors, and accessories.
+
+User's Wardrobe:
+{{#if wardrobeItems}}
+  You should prioritize using items from the user's existing wardrobe:
+  {{#each wardrobeItems}}
+  - {{name}} ({{category}})
+  {{/each}}
+{{else}}
+  The user has not added any items to their wardrobe.
+{{/if}}
+
+Include clothing items and colors.
 `,
 });
 

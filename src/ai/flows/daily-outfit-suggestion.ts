@@ -1,5 +1,3 @@
-// This file is machine-generated - edit with care!
-
 'use server';
 
 /**
@@ -12,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { WardrobeItem } from '@/lib/types';
 
 const DailyOutfitSuggestionInputSchema = z.object({
   gender: z.string().describe('The gender of the user.'),
@@ -23,6 +22,12 @@ const DailyOutfitSuggestionInputSchema = z.object({
   budget: z.string().describe('The budget range of the user.'),
   weather: z.string().describe('The current weather conditions.'),
   trendingStyles: z.array(z.string()).describe('The current trending styles.'),
+  wardrobeItems: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+    category: z.string(),
+    imageUrl: z.string(),
+  })).describe('A list of items currently in the user\'s wardrobe.'),
 });
 export type DailyOutfitSuggestionInput = z.infer<typeof DailyOutfitSuggestionInputSchema>;
 
@@ -31,7 +36,6 @@ const DailyOutfitSuggestionOutputSchema = z.object({
   outfitImage: z.string().describe('An image of the suggested outfit, as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.'),
   itemsList: z.array(z.string()).describe('A list of clothing items in the outfit.'),
   colorPalette: z.array(z.string()).describe('A suggested color palette for the outfit.'),
-  accessoryTips: z.string().describe('Accessory tips for the outfit.'),
 });
 export type DailyOutfitSuggestionOutput = z.infer<typeof DailyOutfitSuggestionOutputSchema>;
 
@@ -46,7 +50,6 @@ const textGenerationPrompt = ai.definePrompt({
       outfitSuggestion: z.string().describe('A title for the suggested outfit.'),
       itemsList: z.array(z.string()).describe('A list of clothing items in the outfit.'),
       colorPalette: z.array(z.string()).describe('A suggested color palette for the outfit.'),
-      accessoryTips: z.string().describe('Accessory tips for the outfit.'),
   })},
   prompt: `You are a personal stylist. Suggest a complete outfit based on the following information:
 
@@ -63,9 +66,19 @@ Current Conditions:
 - Weather: {{{weather}}}
 - Trending Styles: {{#each trendingStyles}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
 
+User's Wardrobe:
+{{#if wardrobeItems}}
+  You should prioritize using items from the user's existing wardrobe:
+  {{#each wardrobeItems}}
+  - {{name}} ({{category}})
+  {{/each}}
+{{else}}
+  The user has not added any items to their wardrobe.
+{{/if}}
+
 Instructions:
-1.  Suggest a complete outfit, including clothing items, colors, and accessories.
-2.  Provide accessory tips for the outfit.
+1.  Suggest a complete outfit, including clothing items and colors.
+2.  Prioritize using items from the user's wardrobe if available.
 `, 
   config: {
     safetySettings: [

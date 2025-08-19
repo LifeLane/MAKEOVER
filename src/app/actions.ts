@@ -1,9 +1,9 @@
-// @ts-nocheck
 'use server';
 import { dailyOutfitSuggestion, DailyOutfitSuggestionInput, DailyOutfitSuggestionOutput } from '@/ai/flows/daily-outfit-suggestion';
 import { eventStyling, EventStylingInput, EventStylingOutput } from '@/ai/flows/event-styling';
 import { regenerateOutfit, RegenerateOutfitInput, RegenerateOutfitOutput } from '@/ai/flows/outfit-regeneration';
 import { findProducts, FindProductsOutput, FindProductsInput } from '@/ai/flows/find-products';
+import { getAccessoryTips, AccessoryTipsInput, AccessoryTipsOutput } from '@/ai/flows/accessory-tips';
 import { UserProfile, Product, SavedLook, WardrobeItem } from '@/lib/types';
 import { DEFAULT_USER_PROFILE } from '@/lib/constants';
 import { getUserProfile, saveUserProfile, getSavedLooks, getWardrobeItems, saveLook, saveWardrobeItem } from '@/services/firestore';
@@ -17,11 +17,13 @@ async function getProfile(): Promise<UserProfile> {
 
 export async function getDailyOutfit(): Promise<ActionResponse<DailyOutfitSuggestionOutput>> {
   const userProfile = await getProfile();
+  const wardrobeItems = await getWardrobeItems();
   const input: DailyOutfitSuggestionInput = {
     ...userProfile,
     age: userProfile.age || 25,
     weather: 'Sunny, 25°C', 
     trendingStyles: ['oversized blazers', 'wide-leg trousers'],
+    wardrobeItems,
   };
   try {
     const result = await dailyOutfitSuggestion(input);
@@ -32,12 +34,14 @@ export async function getDailyOutfit(): Promise<ActionResponse<DailyOutfitSugges
   }
 }
 
-export async function getEventOutfit(data: Omit<EventStylingInput, keyof UserProfile>): Promise<ActionResponse<EventStylingOutput>> {
+export async function getEventOutfit(data: Omit<EventStylingInput, keyof UserProfile | 'wardrobeItems'>): Promise<ActionResponse<EventStylingOutput>> {
    const userProfile = await getProfile();
+   const wardrobeItems = await getWardrobeItems();
    const input: EventStylingInput = {
     ...userProfile,
     age: userProfile.age || 25,
     ...data,
+    wardrobeItems,
   };
   try {
     const result = await eventStyling(input);
@@ -67,6 +71,16 @@ export async function getProductsForOutfit(data: {items: string[], gender: UserP
   } catch (error) {
     console.error(error);
     return { error: 'Failed to find products for outfit.' };
+  }
+}
+
+export async function fetchAccessoryTips(data: AccessoryTipsInput): Promise<ActionResponse<AccessoryTipsOutput>> {
+  try {
+    const result = await getAccessoryTips(data);
+    return result;
+  } catch (error) {
+    console.error(error);
+    return { error: 'Failed to fetch accessory tips.' };
   }
 }
 

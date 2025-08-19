@@ -7,6 +7,8 @@ import { fetchSavedLooks } from '@/app/actions';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { EmptyState } from '@/components/empty-state';
+import { Heart } from 'lucide-react';
 
 export default function SavedLooksPage() {
   const [looks, setLooks] = useState<SavedLook[]>([]);
@@ -89,15 +91,11 @@ export default function SavedLooksPage() {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center text-center py-16">
-          <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
-          </div>
-          <h2 className="text-2xl font-bold font-headline">No Saved Looks Yet</h2>
-          <p className="mt-2 text-muted-foreground">
-            Start discovering outfits and save your favorites here.
-          </p>
-        </div>
+        <EmptyState 
+            title="No Saved Looks Yet"
+            description="Start discovering outfits and save your favorites here."
+            icon={<Heart className="w-12 h-12" />}
+        />
       )}
     </div>
   );
