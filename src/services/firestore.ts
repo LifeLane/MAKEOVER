@@ -1,58 +1,47 @@
 'use server';
 
-import { db } from '@/lib/firebase';
 import { UserProfile, SavedLook, WardrobeItem } from '@/lib/types';
-import { collection, doc, getDoc, setDoc, getDocs, addDoc } from 'firebase/firestore';
+import { DEFAULT_USER_PROFILE } from '@/lib/constants';
 
-const USERS_COLLECTION = 'users';
-const LOOKS_COLLECTION = 'looks';
-const WARDROBE_COLLECTION = 'wardrobe';
+// In-memory data store to replace Firestore
+let userProfile: UserProfile | null = { ...DEFAULT_USER_PROFILE };
+const savedLooks: SavedLook[] = [];
+const wardrobeItems: WardrobeItem[] = [];
+let lookIdCounter = 1;
+let wardrobeIdCounter = 1;
 
-// For now, we'll use a hardcoded user ID. In a real app, this would come from an auth system.
-const MOCK_USER_ID = 'mock-user-123';
 
 export async function saveUserProfile(profile: UserProfile): Promise<void> {
-  const userDocRef = doc(db, USERS_COLLECTION, MOCK_USER_ID);
-  await setDoc(userDocRef, profile, { merge: true });
+  userProfile = { ...profile };
+  // No return needed for mock
 }
 
 export async function getUserProfile(): Promise<UserProfile | null> {
-  const userDocRef = doc(db, USERS_COLLECTION, MOCK_USER_ID);
-  const docSnap = await getDoc(userDocRef);
-  if (docSnap.exists()) {
-    return docSnap.data() as UserProfile;
-  }
-  return null;
+  return userProfile;
 }
 
 export async function saveLook(look: Omit<SavedLook, 'id'>): Promise<string> {
-    const looksCollectionRef = collection(db, USERS_COLLECTION, MOCK_USER_ID, LOOKS_COLLECTION);
-    const docRef = await addDoc(looksCollectionRef, look);
-    return docRef.id;
+    const newLook: SavedLook = {
+        ...look,
+        id: `look-${lookIdCounter++}`,
+    };
+    savedLooks.push(newLook);
+    return newLook.id;
 }
 
 export async function getSavedLooks(): Promise<SavedLook[]> {
-    const looksCollectionRef = collection(db, USERS_COLLECTION, MOCK_USER_ID, LOOKS_COLLECTION);
-    const querySnapshot = await getDocs(looksCollectionRef);
-    const looks: SavedLook[] = [];
-    querySnapshot.forEach((doc) => {
-        looks.push({ id: doc.id, ...doc.data() } as SavedLook);
-    });
-    return looks;
+    return [...savedLooks];
 }
 
 export async function saveWardrobeItem(item: Omit<WardrobeItem, 'id'>): Promise<string> {
-    const wardrobeCollectionRef = collection(db, USERS_COLLECTION, MOCK_USER_ID, WARDROBE_COLLECTION);
-    const docRef = await addDoc(wardrobeCollectionRef, item);
-    return docRef.id;
+    const newItem: WardrobeItem = {
+        ...item,
+        id: `item-${wardrobeIdCounter++}`,
+    };
+    wardrobeItems.push(newItem);
+    return newItem.id;
 }
 
 export async function getWardrobeItems(): Promise<WardrobeItem[]> {
-    const wardrobeCollectionRef = collection(db, USERS_COLLECTION, MOCK_USER_ID, WARDROBE_COLLECTION);
-    const querySnapshot = await getDocs(wardrobeCollectionRef);
-    const items: WardrobeItem[] = [];
-    querySnapshot.forEach((doc) => {
-        items.push({ id: doc.id, ...doc.data() } as WardrobeItem);
-    });
-    return items;
+    return [...wardrobeItems];
 }
