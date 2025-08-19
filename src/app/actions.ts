@@ -12,6 +12,7 @@ type ActionResponse<T> = (T & { error?: never }) | { error: string };
 export async function getDailyOutfit(): Promise<ActionResponse<DailyOutfitSuggestionOutput>> {
   const input: DailyOutfitSuggestionInput = {
     ...MOCK_USER_PROFILE,
+    age: MOCK_USER_PROFILE.age || 25,
     weather: 'Sunny, 25°C', 
     trendingStyles: ['oversized blazers', 'wide-leg trousers'],
   };
@@ -27,6 +28,7 @@ export async function getDailyOutfit(): Promise<ActionResponse<DailyOutfitSugges
 export async function getEventOutfit(data: Omit<EventStylingInput, keyof UserProfile>): Promise<ActionResponse<EventStylingOutput>> {
    const input: EventStylingInput = {
     ...MOCK_USER_PROFILE,
+    age: MOCK_USER_PROFILE.age || 25,
     ...data,
   };
   try {

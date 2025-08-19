@@ -8,9 +8,10 @@ import { getDailyOutfit, getRegeneratedOutfit } from '@/app/actions';
 import { Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { RegenerateOutfitOutput } from '@/ai/flows/outfit-regeneration';
+import { EventStylingOutput } from '@/ai/flows/event-styling';
 
 export function DashboardClient() {
-  const [outfit, setOutfit] = useState<DailyOutfitSuggestionOutput | RegenerateOutfitOutput | null>(null);
+  const [outfit, setOutfit] = useState<DailyOutfitSuggestionOutput | RegenerateOutfitOutput | EventStylingOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -25,7 +26,6 @@ export function DashboardClient() {
         description: result.error,
       });
     } else {
-      // @ts-ignore
       setOutfit(result);
     }
     setIsLoading(false);
@@ -42,9 +42,9 @@ export function DashboardClient() {
       });
     } else {
        setOutfit({
-        // @ts-ignore
         ...result,
-        outfitImage: result.outfitImage
+        imageUrl: result.outfitImage,
+        outfitSuggestion: result.outfitSuggestion,
       });
     }
     setIsLoading(false);

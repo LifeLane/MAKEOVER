@@ -36,18 +36,20 @@ export async function eventStyling(input: EventStylingInput): Promise<EventStyli
   return eventStylingFlow(input);
 }
 
-const prompt = ai.definePrompt({
-  name: 'eventStylingPrompt',
+const textGenerationPrompt = ai.definePrompt({
+  name: 'eventStylingTextPrompt',
   input: {schema: EventStylingInputSchema},
-  output: {schema: EventStylingOutputSchema},
+  output: {schema: z.object({
+    outfitSuggestion: z.string().describe('A detailed outfit suggestion for the event.'),
+    itemsList: z.array(z.string()).describe('A list of clothing items for the outfit.'),
+    colorPalette: z.array(z.string()).describe('A suggested color palette for the outfit.'),
+    accessoryTips: z.string().describe('Accessory tips to complement the outfit.'),
+  })},
   prompt: `You are a personal stylist. Suggest a complete outfit for a
 {{{age}}}-year-old {{{gender}}}, {{{bodyType}}} build, {{{skinTone}}} skin,
 who prefers {{{stylePreferences}}} style for a {{{occasion}}} event.
 The budget is {{{budget}}}, the weather is {{{weather}}}, and the mood/theme is {{{mood}}}.
 Include clothing items, colors, and accessories.
-Generate an image of the suggested outfit.
-
-Output the outfitSuggestion, itemsList, colorPalette, accessoryTips and imageUrl.
 `,
 });
 
@@ -58,9 +60,12 @@ const eventStylingFlow = ai.defineFlow(
     outputSchema: EventStylingOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    // Generate outfit image
-    const imagePrompt = `Generate an image of a ${input.occasion} outfit for a ${input.age}-year-old ${input.gender}, with ${input.stylePreferences.join(', ')} style.`;
+    const {output: textOutput} = await textGenerationPrompt(input);
+    if (!textOutput) {
+      throw new Error('Failed to generate event styling text.');
+    }
+
+    const imagePrompt = `Generate an image of a ${input.occasion} outfit for a ${input.age}-year-old ${input.gender}, with ${input.stylePreferences.join(', ')} style. Items: ${textOutput.itemsList.join(', ')}`;
     const { media } = await ai.generate({
       model: 'googleai/gemini-2.0-flash-preview-image-generation',
       prompt: imagePrompt,
@@ -68,9 +73,10 @@ const eventStylingFlow = ai.defineFlow(
         responseModalities: ['TEXT', 'IMAGE'],
       },
     });
-    if (media) {
-      output!.imageUrl = media.url;
-    }
-    return output!;
+    
+    return {
+      ...textOutput,
+      imageUrl: media?.url || '',
+    };
   }
 );

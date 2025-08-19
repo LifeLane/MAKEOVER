@@ -27,6 +27,7 @@ const DailyOutfitSuggestionInputSchema = z.object({
 export type DailyOutfitSuggestionInput = z.infer<typeof DailyOutfitSuggestionInputSchema>;
 
 const DailyOutfitSuggestionOutputSchema = z.object({
+  outfitSuggestion: z.string().describe('A title for the suggested outfit.'),
   outfitImage: z.string().describe('An image of the suggested outfit, as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.'),
   itemsList: z.array(z.string()).describe('A list of clothing items in the outfit.'),
   colorPalette: z.array(z.string()).describe('A suggested color palette for the outfit.'),
@@ -38,10 +39,15 @@ export async function dailyOutfitSuggestion(input: DailyOutfitSuggestionInput): 
   return dailyOutfitSuggestionFlow(input);
 }
 
-const prompt = ai.definePrompt({
-  name: 'dailyOutfitSuggestionPrompt',
+const textGenerationPrompt = ai.definePrompt({
+  name: 'dailyOutfitTextPrompt',
   input: {schema: DailyOutfitSuggestionInputSchema},
-  output: {schema: DailyOutfitSuggestionOutputSchema},
+  output: {schema: z.object({
+      outfitSuggestion: z.string().describe('A title for the suggested outfit.'),
+      itemsList: z.array(z.string()).describe('A list of clothing items in the outfit.'),
+      colorPalette: z.array(z.string()).describe('A suggested color palette for the outfit.'),
+      accessoryTips: z.string().describe('Accessory tips for the outfit.'),
+  })},
   prompt: `You are a personal stylist. Suggest a complete outfit based on the following information:
 
 User Profile:
@@ -60,10 +66,7 @@ Current Conditions:
 Instructions:
 1.  Suggest a complete outfit, including clothing items, colors, and accessories.
 2.  Provide accessory tips for the outfit.
-3.  Create an image of the suggested outfit.
-
-Output the outfit image as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'.`, // eslint-disable-line
-  // Gemini safety filters can be configured here.
+`, 
   config: {
     safetySettings: [
       {
@@ -93,21 +96,24 @@ const dailyOutfitSuggestionFlow = ai.defineFlow(
     outputSchema: DailyOutfitSuggestionOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
+    const {output: textOutput} = await textGenerationPrompt(input);
+    if (!textOutput) {
+      throw new Error('Failed to generate outfit text');
+    }
 
-    // Generate the outfit image using the googleai/gemini-2.0-flash-preview-image-generation model.
     const imageResponse = await ai.generate({
       model: 'googleai/gemini-2.0-flash-preview-image-generation',
-      prompt: `Generate an image of an outfit based on these items: ${output?.itemsList?.join(', ')}`, // eslint-disable-line
+      prompt: `Generate an image of an outfit based on these items: ${textOutput.itemsList.join(', ')}. The style should be: ${input.stylePreferences.join(', ')}.`,
       config: {
         responseModalities: ['TEXT', 'IMAGE'],
       },
     });
 
-    if (imageResponse.media?.url) {
-      output!.outfitImage = imageResponse.media.url;
-    }
+    const outfitImage = imageResponse.media?.url ?? '';
 
-    return output!;
+    return {
+      ...textOutput,
+      outfitImage,
+    };
   }
 );

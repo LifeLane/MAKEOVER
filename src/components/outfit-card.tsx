@@ -80,10 +80,10 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
     setRegenerationInput('');
   };
 
-  if (isLoading) {
+  if (isLoading && !outfit) {
     return <LoadingSkeleton />;
   }
-
+  
   if (!outfit) {
     return null;
   }
@@ -92,14 +92,18 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
     <Card className="overflow-hidden shadow-lg border-2 border-accent/20">
       <div className="grid grid-cols-1 md:grid-cols-2">
         <div className="relative aspect-square md:aspect-auto min-h-[500px]">
-          <Image
-            src={outfitImage || 'https://placehold.co/600x800.png'}
-            alt="Suggested outfit"
-            fill
-            objectFit="cover"
-            className="transition-transform duration-300 hover:scale-105"
-            data-ai-hint="fashion outfit"
-          />
+          {isLoading && !outfitImage ? (
+            <Skeleton className="w-full h-full" />
+          ) : (
+            <Image
+              src={outfitImage || 'https://placehold.co/600x800.png'}
+              alt="Suggested outfit"
+              fill
+              objectFit="cover"
+              className="transition-transform duration-300 hover:scale-105"
+              data-ai-hint="fashion outfit"
+            />
+          )}
         </div>
         <div className="flex flex-col">
           <CardHeader>
@@ -175,8 +179,8 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
               <Button onClick={handleSave} variant="outline" className="w-full">
                 <Heart className="mr-2" /> Save Look
               </Button>
-              <Button onClick={handleRegenerateClick} className="w-full flex-grow">
-                <RefreshCw className="mr-2" /> Regenerate
+              <Button onClick={handleRegenerateClick} className="w-full flex-grow" disabled={isLoading}>
+                <RefreshCw className="mr-2" /> {isLoading ? 'Generating...' : 'Regenerate'}
               </Button>
             </div>
           </CardFooter>
