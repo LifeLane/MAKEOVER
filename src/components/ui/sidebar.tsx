@@ -18,8 +18,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { Logo } from "@/components/logo"
-import { Nav } from "@/components/nav"
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
@@ -70,7 +68,6 @@ const SidebarProvider = React.forwardRef<
   ) => {
     const isMobile = useIsMobile()
     const [isMounted, setIsMounted] = React.useState(false);
-    const [openMobile, setOpenMobile] = React.useState(false);
 
     React.useEffect(() => {
         setIsMounted(true);
@@ -96,7 +93,9 @@ const SidebarProvider = React.forwardRef<
     )
 
     const toggleSidebar = React.useCallback(() => {
-        isMobile ? setOpenMobile((v) => !v) : setOpen((v) => !v);
+        if (!isMobile) {
+          setOpen((v) => !v);
+        }
     }, [isMobile, setOpen]);
 
     React.useEffect(() => {
@@ -146,9 +145,7 @@ const SidebarProvider = React.forwardRef<
             ref={ref}
             {...props}
           >
-              <Sheet open={isMobile && openMobile} onOpenChange={setOpenMobile}>
-                  {children}
-              </Sheet>
+              {children}
           </div>
         </TooltipProvider>
       </SidebarContext.Provider>
@@ -176,17 +173,9 @@ const Sidebar = React.forwardRef<
     },
     ref
   ) => {
-    const { isMobile, isMounted, state } = useSidebar()
+    const { isMounted, state } = useSidebar()
     
     if (!isMounted) return null;
-
-    if (isMobile) {
-      return (
-         <SheetContent side={side} className={cn("flex w-[--sidebar-width-mobile] flex-col bg-sidebar p-0 text-sidebar-foreground", className)}>
-             {children}
-         </SheetContent>
-      );
-    }
 
     if (collapsible === "none") {
       return (
@@ -232,41 +221,25 @@ Sidebar.displayName = "Sidebar"
 const SidebarTrigger = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<typeof Button> & { asChild?: boolean }
->(({ className, ...props }, ref) => {
+>(({ className, asChild, ...props }, ref) => {
   const { toggleSidebar, isMobile, isMounted } = useSidebar();
-  
-  if (!isMounted) return null;
+  const Comp = asChild ? Slot : Button;
 
-  if (isMobile) {
-     return (
-        <SheetTrigger asChild>
-          <Button
-              ref={ref}
-              variant="ghost"
-              size="icon"
-              className={cn("h-10 w-10", className)}
-              {...props}
-            >
-              <Menu />
-              <span className="sr-only">Toggle Sidebar</span>
-            </Button>
-        </SheetTrigger>
-    );
-  }
+  if (!isMounted || isMobile) return null;
   
   return (
-    <Button
-      ref={ref}
-      data-sidebar="trigger"
-      variant="ghost"
-      size="icon"
-      className={cn("h-10 w-10", className)}
-      onClick={toggleSidebar}
-      {...props}
-    >
-      <PanelLeft />
-      <span className="sr-only">Toggle Sidebar</span>
-    </Button>
+      <Comp
+        ref={ref}
+        data-sidebar="trigger"
+        variant="ghost"
+        size="icon"
+        className={cn("h-10 w-10", className)}
+        onClick={toggleSidebar}
+        {...props}
+      >
+        <PanelLeft />
+        <span className="sr-only">Toggle Sidebar</span>
+      </Comp>
   );
 });
 SidebarTrigger.displayName = "SidebarTrigger";
@@ -331,12 +304,15 @@ const SidebarInset = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"main">
 >(({ className, ...props }, ref) => {
+  const { isMounted, isMobile } = useSidebar();
+  if (!isMounted) return null;
+
   return (
     <main
       ref={ref}
       className={cn(
         "relative flex min-h-svh flex-1 flex-col bg-background",
-        "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow",
+        !isMobile && "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow",
         className
       )}
       {...props}

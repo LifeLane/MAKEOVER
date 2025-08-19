@@ -4,16 +4,13 @@ import {
   Sidebar,
   SidebarHeader,
   SidebarContent,
-  SidebarInset,
   SidebarTrigger,
-  SidebarClose,
 } from '@/components/ui/sidebar';
 import { Nav } from '@/components/nav';
 import { Logo } from '@/components/logo';
 import { Toaster } from '@/components/ui/toaster';
 import './globals.css';
-import { Button } from '@/components/ui/button';
-import { Menu } from 'lucide-react';
+import { BottomNav } from '@/components/bottom-nav';
 
 export const metadata: Metadata = {
   title: 'StyleGenius',
@@ -48,15 +45,13 @@ export default function RootLayout({
           </Sidebar>
           
           <div className="flex flex-1 flex-col">
-            <header className="sticky top-0 z-10 flex h-14 items-center justify-between border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6 md:justify-end">
-              {/* Mobile Sidebar Trigger - inside header for mobile layout */}
-              <SidebarTrigger className="md:hidden" />
-              
-              {/* Desktop Sidebar Trigger - for toggling collapsed state */}
+            <header className="sticky top-0 z-10 flex h-14 items-center justify-end border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6">
+              {/* Desktop Sidebar Trigger */}
               <SidebarTrigger className="hidden md:flex" />
             </header>
-            <main className="p-4 sm:p-6">{children}</main>
+            <main className="flex-1 p-4 pb-20 sm:p-6 md:pb-6">{children}</main>
           </div>
+          <BottomNav />
         </SidebarProvider>
         <Toaster />
       </body>
