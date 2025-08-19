@@ -49,12 +49,7 @@ export default function RootLayout({
           </Sidebar>
           <SidebarInset>
             <header className="sticky top-0 z-10 flex h-14 items-center justify-end border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6 md:justify-end">
-              <SidebarTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden">
-                  <PanelLeft />
-                  <span className="sr-only">Toggle Menu</span>
-                </Button>
-              </SidebarTrigger>
+              <SidebarTrigger className="md:hidden"/>
             </header>
             <main className="flex-1 p-4 pb-20 sm:p-6 md:pb-6">{children}</main>
           </SidebarInset>

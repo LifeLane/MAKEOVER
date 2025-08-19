@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Tooltip,
@@ -126,6 +126,10 @@ const SidebarProvider = React.forwardRef<
       }),
       [state, open, setOpen, isMobile, isMounted, toggleSidebar]
     )
+    
+    if (!isMounted) {
+      return null;
+    }
 
     return (
       <SidebarContext.Provider value={contextValue}>
@@ -145,7 +149,9 @@ const SidebarProvider = React.forwardRef<
             ref={ref}
             {...props}
           >
+            <Sheet>
               {children}
+            </Sheet>
           </div>
         </TooltipProvider>
       </SidebarContext.Provider>
@@ -173,9 +179,22 @@ const Sidebar = React.forwardRef<
     },
     ref
   ) => {
-    const { isMounted, state } = useSidebar()
+    const { isMounted, state, isMobile } = useSidebar()
     
     if (!isMounted) return null;
+
+    if (isMobile) {
+      return (
+        <SheetContent side={side} className="p-0 w-[--sidebar-width-mobile]">
+          <div
+            data-sidebar="sidebar"
+            className="flex h-full flex-col bg-sidebar"
+          >
+            {children}
+          </div>
+        </SheetContent>
+      )
+    }
 
     if (collapsible === "none") {
       return (
@@ -196,7 +215,7 @@ const Sidebar = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          "group peer text-sidebar-foreground transition-[width]",
+          "group peer hidden md:block text-sidebar-foreground",
           "data-[state=expanded]:w-[var(--sidebar-width)] data-[state=collapsed]:w-[var(--sidebar-width-icon)]",
           className
         )}
@@ -223,9 +242,27 @@ const SidebarTrigger = React.forwardRef<
   React.ComponentProps<typeof Button> & { asChild?: boolean }
 >(({ className, asChild, ...props }, ref) => {
   const { toggleSidebar, isMobile, isMounted } = useSidebar();
-  const Comp = asChild ? Slot : Button;
 
-  if (!isMounted || isMobile) return null;
+  if (!isMounted) return null;
+  
+  if (isMobile) {
+     return (
+        <SheetTrigger asChild>
+          <Button
+              ref={ref}
+              variant="ghost"
+              size="icon"
+              className={cn("md:hidden", className)}
+              {...props}
+            >
+              <PanelLeft />
+              <span className="sr-only">Toggle Menu</span>
+          </Button>
+        </SheetTrigger>
+      )
+  }
+
+  const Comp = asChild ? Slot : Button;
   
   return (
       <Comp
@@ -233,7 +270,7 @@ const SidebarTrigger = React.forwardRef<
         data-sidebar="trigger"
         variant="ghost"
         size="icon"
-        className={cn("h-10 w-10", className)}
+        className={cn("hidden md:inline-flex h-10 w-10", className)}
         onClick={toggleSidebar}
         {...props}
       >
@@ -304,7 +341,7 @@ const SidebarInset = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"main">
 >(({ className, ...props }, ref) => {
-  const { isMounted, isMobile } = useSidebar();
+  const { isMounted } = useSidebar();
   if (!isMounted) return null;
 
   return (
@@ -312,7 +349,7 @@ const SidebarInset = React.forwardRef<
       ref={ref}
       className={cn(
         "relative flex min-h-svh flex-1 flex-col bg-background",
-        !isMobile && "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow",
+        "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow",
         className
       )}
       {...props}
