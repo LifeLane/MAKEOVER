@@ -39,9 +39,10 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
   const outfitSuggestion = outfit && 'outfitSuggestion' in outfit ? outfit.outfitSuggestion : "Today's Look";
 
   useEffect(() => {
-    if (itemsList && itemsList.length > 0) {
+    if (outfit && 'itemsList' in outfit && outfit.itemsList && outfit.itemsList.length > 0) {
       setIsFetchingProducts(true);
-      getProductsForOutfit({items: itemsList, gender: MOCK_USER_PROFILE.gender})
+      setProducts([]);
+      getProductsForOutfit({items: outfit.itemsList, gender: MOCK_USER_PROFILE.gender})
         .then(result => {
           if (!result.error) {
             setProducts(result.products);
@@ -57,7 +58,7 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
           setIsFetchingProducts(false);
         });
     }
-  }, [itemsList, toast]);
+  }, [outfit, toast]);
 
   const handleSave = () => {
     toast({
@@ -195,7 +196,10 @@ function ProductCard({ product }: { product: Product }) {
     <Card className="overflow-hidden">
         <CardContent className="p-0">
             <div className="relative aspect-[3/4]">
-                <Image src={product.imageUrl} alt={product.name} fill objectFit="cover" data-ai-hint="clothing item" />
+                {product.imageUrl ? 
+                  <Image src={product.imageUrl} alt={product.name} fill objectFit="cover" data-ai-hint="clothing item" />
+                  : <Skeleton className='w-full h-full' />
+                }
             </div>
             <div className="p-3">
                 <h4 className="font-semibold text-sm truncate">{product.name}</h4>

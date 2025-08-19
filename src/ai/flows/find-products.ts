@@ -26,11 +26,6 @@ const getProductTool = ai.defineTool(
     }),
   },
   async (input) => {
-    // This is a mock implementation.
-    // In a real app, you'd search a product database or API.
-    console.log(`Searching for product: ${input.itemName} for gender: ${input.gender}`);
-    const mockPrice = `$${(Math.random() * 100 + 20).toFixed(2)}`;
-    
     let baseUrl = 'https://www.amazon.com/s?k=';
     if (input.gender === 'female') {
         baseUrl = 'https://amzn.to/46YSKh2';
@@ -42,11 +37,19 @@ const getProductTool = ai.defineTool(
         ? baseUrl 
         : `${baseUrl}${encodeURIComponent(input.itemName)}`;
 
+    const imageResponse = await ai.generate({
+        model: 'googleai/gemini-2.0-flash-preview-image-generation',
+        prompt: `A high-quality, professional studio photograph of a single product: a ${input.itemName}. The item should be on a plain, neutral background, like light gray or white. The lighting should be bright and even, highlighting the texture and details of the product. There should be no models or other distracting elements.`,
+        config: {
+            responseModalities: ['TEXT', 'IMAGE'],
+        },
+    });
+
     return {
         name: input.itemName,
         price: "Check price on Amazon",
         url: searchUrl,
-        imageUrl: `https://placehold.co/300x400.png?text=${encodeURIComponent(input.itemName)}`
+        imageUrl: imageResponse.media?.url || `https://placehold.co/300x400.png?text=${encodeURIComponent(input.itemName)}`,
     };
   }
 );
