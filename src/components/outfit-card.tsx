@@ -15,6 +15,7 @@ import { Input } from './ui/input';
 import { useState, useEffect } from 'react';
 import type { Product } from '@/lib/types';
 import { getProductsForOutfit } from '@/app/actions';
+import { MOCK_USER_PROFILE } from '@/lib/constants';
 
 type Outfit = DailyOutfitSuggestionOutput | RegenerateOutfitOutput | EventStylingOutput;
 
@@ -40,19 +41,23 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
   useEffect(() => {
     if (itemsList && itemsList.length > 0) {
       setIsFetchingProducts(true);
-      getProductsForOutfit(itemsList)
+      getProductsForOutfit({items: itemsList, gender: MOCK_USER_PROFILE.gender})
         .then(result => {
           if (!result.error) {
             setProducts(result.products);
           } else {
-            console.error(result.error);
+            toast({
+              variant: 'destructive',
+              title: 'Error finding products',
+              description: result.error,
+            });
           }
         })
         .finally(() => {
           setIsFetchingProducts(false);
         });
     }
-  }, [itemsList]);
+  }, [itemsList, toast]);
 
   const handleSave = () => {
     toast({

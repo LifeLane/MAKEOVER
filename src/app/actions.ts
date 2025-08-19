@@ -3,7 +3,7 @@
 import { dailyOutfitSuggestion, DailyOutfitSuggestionInput, DailyOutfitSuggestionOutput } from '@/ai/flows/daily-outfit-suggestion';
 import { eventStyling, EventStylingInput, EventStylingOutput } from '@/ai/flows/event-styling';
 import { regenerateOutfit, RegenerateOutfitInput, RegenerateOutfitOutput } from '@/ai/flows/outfit-regeneration';
-import { findProducts, FindProductsOutput } from '@/ai/flows/find-products';
+import { findProducts, FindProductsOutput, FindProductsInput } from '@/ai/flows/find-products';
 import { UserProfile, Product } from '@/lib/types';
 import { MOCK_USER_PROFILE } from '@/lib/constants';
 
@@ -49,9 +49,10 @@ export async function getRegeneratedOutfit(userInput: string): Promise<ActionRes
   }
 }
 
-export async function getProductsForOutfit(items: string[]): Promise<ActionResponse<FindProductsOutput>> {
+export async function getProductsForOutfit(data: {items: string[], gender: UserProfile['gender']}): Promise<ActionResponse<FindProductsOutput>> {
   try {
-    const result = await findProducts({ items });
+    const input: FindProductsInput = { items: data.items, gender: data.gender };
+    const result = await findProducts(input);
     return result;
   } catch (error) {
     console.error(error);
