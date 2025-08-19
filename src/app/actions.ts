@@ -4,7 +4,7 @@ import { dailyOutfitSuggestion, DailyOutfitSuggestionInput, DailyOutfitSuggestio
 import { eventStyling, EventStylingInput, EventStylingOutput } from '@/ai/flows/event-styling';
 import { regenerateOutfit, RegenerateOutfitInput, RegenerateOutfitOutput } from '@/ai/flows/outfit-regeneration';
 import { findProducts, FindProductsOutput, FindProductsInput } from '@/ai/flows/find-products';
-import { UserProfile, Product, SavedLook } from '@/lib/types';
+import { UserProfile, Product, SavedLook, WardrobeItem } from '@/lib/types';
 import { DEFAULT_USER_PROFILE } from '@/lib/constants';
 import { getUserProfile, saveUserProfile, getSavedLooks, getWardrobeItems, saveLook, saveWardrobeItem } from '@/services/firestore';
 
@@ -108,4 +108,24 @@ export async function saveGeneratedLook(look: Omit<SavedLook, 'id'>): Promise<Ac
         console.error(error);
         return { error: 'Failed to save look.' };
     }
+}
+
+export async function fetchWardrobeItems(): Promise<ActionResponse<{items: WardrobeItem[]}>> {
+  try {
+    const items = await getWardrobeItems();
+    return { items };
+  } catch (error) {
+    console.error(error);
+    return { error: 'Failed to fetch wardrobe items.' };
+  }
+}
+
+export async function addWardrobeItem(item: Omit<WardrobeItem, 'id'>): Promise<ActionResponse<{itemId: string}>> {
+  try {
+    const itemId = await saveWardrobeItem(item);
+    return { itemId };
+  } catch (error) {
+    console.error(error);
+    return { error: 'Failed to add wardrobe item.' };
+  }
 }
