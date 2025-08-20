@@ -132,7 +132,7 @@ export function DashboardClient() {
   return (
     <div className="container mx-auto">
        <div className="mb-6 space-y-1">
-        <h1 className="text-2xl font-headline text-primary-dark font-bold tracking-tight lg:text-3xl">
+        <h1 className="text-2xl font-headline text-primary-dark font-bold tracking-tight lg:text-3xl whitespace-nowrap">
           Welcome back, {userProfile.name || 'Fashionista'}!
         </h1>
         <p className="text-base text-foreground/80">
