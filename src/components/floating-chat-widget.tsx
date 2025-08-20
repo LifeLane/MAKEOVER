@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -15,6 +15,9 @@ import { getStyleBotResponse } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import { useChat, ChatSize } from '@/hooks/use-chat';
+import { useIsMobile } from '@/hooks/use-mobile';
+
 
 const formSchema = z.object({
   message: z.string().min(1, 'Message cannot be empty.'),
@@ -30,18 +33,19 @@ type Conversation = {
     bot: string;
 }
 
-enum ChatSize {
-  Normal,
-  Maximized,
-}
-
 export function FloatingChatWidget() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [size, setSize] = useState<ChatSize>(ChatSize.Normal);
-  const [messages, setMessages] = useState<Message[]>([
-    { sender: 'bot', text: "Hello! I'm Mirror, your personal style assistant. How can I help you reflect your best self today?" }
-  ]);
-  const [isLoading, setIsLoading] = useState(false);
+  const { 
+    isOpen, 
+    setIsOpen, 
+    size, 
+    toggleSize,
+    messages,
+    setMessages,
+    isLoading,
+    setIsLoading
+  } = useChat();
+
+  const isMobile = useIsMobile();
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -111,10 +115,6 @@ export function FloatingChatWidget() {
     setIsLoading(false);
   }
 
-  const toggleSize = () => {
-    setSize(current => current === ChatSize.Normal ? ChatSize.Maximized : ChatSize.Normal);
-  }
-
   return (
     <>
       <div className="fixed bottom-6 right-6 z-50">
@@ -125,7 +125,8 @@ export function FloatingChatWidget() {
           className={cn(
             "w-16 h-16 bg-primary rounded-full shadow-lg flex items-center justify-center text-primary-foreground",
             "transition-transform duration-300 ease-in-out",
-            !isOpen && "animate-pulse-slow"
+            !isOpen && "animate-pulse-slow",
+            isMobile && "hidden"
           )}
           aria-label="Open Chat"
         >

@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -255,7 +256,7 @@ const SidebarTrigger = React.forwardRef<
               className={cn("md:hidden", className)}
               {...props}
             >
-              <PanelLeft />
+              <Menu />
               <span className="sr-only">Toggle Menu</span>
           </Button>
         </SheetTrigger>
