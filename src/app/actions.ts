@@ -6,6 +6,7 @@ import { regenerateOutfit, RegenerateOutfitInput, RegenerateOutfitOutput } from 
 import { findProducts, FindProductsOutput, FindProductsInput } from '@/ai/flows/find-products';
 import { getAccessoryTips, AccessoryTipsInput, AccessoryTipsOutput } from '@/ai/flows/accessory-tips';
 import { styleBot, StyleBotInput, StyleBotOutput } from '@/ai/flows/style-bot';
+import { getFashionFact, FashionFactInput, FashionFactOutput } from '@/ai/flows/fashion-fact';
 import { UserProfile } from '@/lib/types';
 
 
@@ -74,4 +75,14 @@ export async function getStyleBotResponse(data: StyleBotInput): Promise<ActionRe
     console.error(error);
     return { error: 'Failed to get response from Style Bot.' };
   }
+}
+
+export async function fetchFashionFact(date: string): Promise<ActionResponse<FashionFactOutput>> {
+    try {
+        const result = await getFashionFact({ date });
+        return result;
+    } catch (error) {
+        console.error(error);
+        return { error: 'Failed to fetch fashion fact.' };
+    }
 }
