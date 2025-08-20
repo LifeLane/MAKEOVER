@@ -38,17 +38,17 @@ export default function SavedLooksPage() {
   if (isLoading) {
     return (
        <div className="px-2 sm:px-4">
-        <div className="mb-6 text-center sm:text-left">
-          <h1 className="text-2xl font-headline font-bold text-primary lg:text-4xl">Saved Looks</h1>
-          <p className="mt-2 text-sm text-foreground/80">Your collection of favorite styles.</p>
+        <div className="mb-6">
+          <h1 className="text-xl sm:text-2xl font-headline font-bold text-primary lg:text-3xl">Saved Looks</h1>
+          <p className="mt-1 text-sm text-foreground/80">Your collection of favorite styles.</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {[...Array(3)].map((_, i) => (
                 <Card key={i} className="overflow-hidden group shadow-lg">
-                    <CardHeader><Skeleton className="h-6 w-3/4" /></CardHeader>
+                    <CardHeader className="p-3"><Skeleton className="h-6 w-3/4" /></CardHeader>
                     <CardContent className="p-0">
                         <Skeleton className="relative aspect-[4/5] w-full" />
-                        <div className="p-4 space-y-2">
+                        <div className="p-3 space-y-2">
                            <Skeleton className="h-4 w-full" />
                            <Skeleton className="h-4 w-2/3" />
                         </div>
@@ -62,29 +62,29 @@ export default function SavedLooksPage() {
 
   return (
     <div className="px-2 sm:px-4">
-      <div className="mb-6 text-center sm:text-left">
-        <h1 className="text-2xl font-headline font-bold text-primary lg:text-4xl">Saved Looks</h1>
-        <p className="mt-2 text-sm text-foreground/80">Your collection of favorite styles.</p>
+      <div className="mb-6">
+        <h1 className="text-xl sm:text-2xl font-headline font-bold text-primary lg:text-3xl">Saved Looks</h1>
+        <p className="mt-1 text-sm text-foreground/80">Your collection of favorite styles.</p>
       </div>
       
       {looks.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {looks.map((look) => (
             <Card key={look.id} className="overflow-hidden group shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-105">
-              <CardHeader>
-                <CardTitle className="font-headline text-lg">{look.occasion}</CardTitle>
+              <CardHeader className="p-3">
+                <CardTitle className="font-headline text-base">{look.occasion}</CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="relative aspect-[4/5]">
+                <div className="relative aspect-[4/5] bg-muted/30">
                   <Image
                     src={look.imageUrl}
                     alt={look.outfitSuggestion}
                     fill
-                    className="object-cover"
+                    className="object-contain"
                     data-ai-hint="fashion outfit"
                   />
                 </div>
-                <div className="p-4 space-y-1">
+                <div className="p-3 space-y-1">
                    <p className="text-sm text-muted-foreground">{look.outfitSuggestion}</p>
                    <p className="text-xs font-medium">Items: {look.itemsList.join(', ')}</p>
                 </div>
@@ -102,3 +102,5 @@ export default function SavedLooksPage() {
     </div>
   );
 }
+
+    

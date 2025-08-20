@@ -26,11 +26,11 @@ function GeneratedDesign({ design, isLoading }: { design: VisualDesignerOutput |
   if (isLoading) {
     return (
       <Card className="mt-8 shadow-lg">
-        <CardHeader>
+        <CardHeader className="p-4 md:p-6">
           <Skeleton className="h-8 w-3/4" />
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <CardContent className="p-4 md:p-6 pt-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <Skeleton className="w-full aspect-square" />
             <div className="space-y-4">
               <Skeleton className="h-6 w-full" />
@@ -46,17 +46,17 @@ function GeneratedDesign({ design, isLoading }: { design: VisualDesignerOutput |
 
   return (
     <Card className="mt-8 shadow-lg animate-in fade-in-50">
-      <CardHeader>
-        <CardTitle className="font-headline text-2xl text-primary">Your Design Is Ready</CardTitle>
+      <CardHeader className="p-4 md:p-6">
+        <CardTitle className="font-headline text-xl md:text-2xl text-primary">Your Design Is Ready</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 md:p-6 pt-0">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-          <div className="relative aspect-square rounded-lg overflow-hidden border">
+          <div className="relative aspect-square rounded-lg overflow-hidden border bg-muted/30">
             <Image
               src={design.imageUrl}
               alt="Generated Fashion Design"
               fill
-              className="object-cover transition-transform duration-300 hover:scale-105"
+              className="object-contain transition-transform duration-300 hover:scale-105"
               data-ai-hint="fashion design"
             />
           </div>
@@ -74,8 +74,7 @@ export function VisualDesignerClient() {
   const [design, setDesign] = useState<VisualDesignerOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const [previewUrl, setPreviewUrl] = useState<string>('');
-
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -107,10 +106,10 @@ export function VisualDesignerClient() {
   return (
     <>
       <Card className="max-w-3xl mx-auto shadow-lg">
-        <CardHeader>
+        <CardHeader className="p-4 md:p-6">
           <CardTitle className="font-headline text-xl md:text-2xl text-primary">Create Your Vision</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 md:p-6 pt-0">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -129,8 +128,8 @@ export function VisualDesignerClient() {
                       )}
                     />
                     {imageUrl && (
-                        <div className="relative aspect-square rounded-md overflow-hidden border">
-                           <Image src={imageUrl} alt="Reference Preview" fill className="object-cover" data-ai-hint="reference image" />
+                        <div className="relative aspect-square rounded-md overflow-hidden border bg-muted/30">
+                           <Image src={imageUrl} alt="Reference Preview" fill className="object-contain" data-ai-hint="reference image" />
                         </div>
                     )}
                  </div>
@@ -164,3 +163,5 @@ export function VisualDesignerClient() {
     </>
   );
 }
+
+    

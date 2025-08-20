@@ -168,7 +168,7 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
   return (
     <Card className="overflow-hidden shadow-lg">
       <div className="grid grid-cols-1 md:grid-cols-2">
-        <div className="relative aspect-square md:aspect-auto min-h-[500px]">
+        <div className="relative aspect-square md:aspect-auto min-h-[500px] bg-muted/30">
           {isLoading && !outfitImage ? (
             <Skeleton className="w-full h-full" />
           ) : (
@@ -176,7 +176,7 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
               src={outfitImage || 'https://placehold.co/600x800.png'}
               alt="Suggested outfit"
               fill
-              className="object-cover transition-transform duration-300 hover:scale-105"
+              className="object-contain transition-transform duration-300 hover:scale-105"
               data-ai-hint="fashion outfit"
             />
           )}
@@ -191,12 +191,12 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
         </div>
         <div className="flex flex-col">
           <CardHeader>
-            <CardTitle className="font-headline text-2xl text-primary">{outfitSuggestion}</CardTitle>
+            <CardTitle className="font-headline text-xl md:text-2xl text-primary">{outfitSuggestion}</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6 flex-grow p-6">
+          <CardContent className="space-y-6 flex-grow p-4 md:p-6">
             <Accordion type="single" collapsible className="w-full" defaultValue='item-1'>
               <AccordionItem value="item-1">
-                <AccordionTrigger className="font-semibold flex items-center gap-2"><Shirt size={18}/> Items & Colors</AccordionTrigger>
+                <AccordionTrigger className="font-semibold flex items-center gap-2 text-sm"><Shirt size={18}/> Items & Colors</AccordionTrigger>
                 <AccordionContent>
                   {itemsList && itemsList.length > 0 && (
                   <div className="space-y-4">
@@ -221,7 +221,7 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-2">
-                <AccordionTrigger className="font-semibold flex items-center gap-2"><Wand2 size={18}/> Accessory Tips</AccordionTrigger>
+                <AccordionTrigger className="font-semibold flex items-center gap-2 text-sm"><Wand2 size={18}/> Accessory Tips</AccordionTrigger>
                 <AccordionContent className="text-foreground/80">
                   {isFetchingTips && <Skeleton className="h-10 w-full" />}
                   {accessoryTips && !isFetchingTips && <p>{accessoryTips}</p>}
@@ -229,7 +229,7 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-3">
-                <AccordionTrigger className="font-semibold flex items-center gap-2"><ShoppingBag size={18}/> Shop the Look</AccordionTrigger>
+                <AccordionTrigger className="font-semibold flex items-center gap-2 text-sm"><ShoppingBag size={18}/> Shop the Look</AccordionTrigger>
                 <AccordionContent>
                   {isFetchingProducts ? (
                      <div className="grid grid-cols-2 gap-4">
@@ -261,10 +261,10 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
             )}
             <div className="flex flex-col sm:flex-row gap-2 w-full">
               <Button onClick={handleSave} variant="outline" className="w-full">
-                <Heart className="mr-2" /> Save Look
+                <Heart className="mr-2 h-4 w-4" /> Save Look
               </Button>
               <Button onClick={handleRegenerateClick} className="w-full flex-grow" disabled={isLoading}>
-                <RefreshCw className="mr-2" /> {isLoading ? 'Generating...' : 'Regenerate'}
+                <RefreshCw className="mr-2 h-4 w-4" /> {isLoading ? 'Generating...' : 'Regenerate'}
               </Button>
             </div>
           </CardFooter>
@@ -278,9 +278,9 @@ function ProductCard({ product }: { product: Product }) {
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:shadow-md hover:scale-105">
         <CardContent className="p-0">
-            <div className="relative aspect-[3/4]">
+            <div className="relative aspect-[3/4] bg-muted/30">
                 {product.imageUrl ? 
-                  <Image src={product.imageUrl} alt={product.name} fill objectFit="cover" data-ai-hint="clothing item" />
+                  <Image src={product.imageUrl} alt={product.name} fill className="object-contain" data-ai-hint="clothing item" />
                   : <Skeleton className='w-full h-full' />
                 }
             </div>
@@ -301,7 +301,7 @@ function LoadingSkeleton() {
     <Card className="overflow-hidden shadow-lg">
       <div className="grid grid-cols-1 md:grid-cols-2">
         <Skeleton className="aspect-square md:aspect-auto w-full h-auto min-h-[500px]" />
-        <div className="flex flex-col p-6 space-y-6">
+        <div className="flex flex-col p-4 md:p-6 space-y-6">
           <Skeleton className="h-8 w-3/4" />
           <div className="space-y-4">
              <Skeleton className="h-10 w-full" />
@@ -309,8 +309,8 @@ function LoadingSkeleton() {
              <Skeleton className="h-10 w-full" />
           </div>
           <div className="flex flex-col sm:flex-row gap-2 mt-auto">
-            <Skeleton className="h-10 w-full sm:w-28" />
-            <Skeleton className="h-10 w-full flex-grow" />
+            <Skeleton className="h-9 w-full sm:w-28" />
+            <Skeleton className="h-9 w-full flex-grow" />
           </div>
         </div>
       </div>
@@ -328,3 +328,5 @@ function ProductSkeleton() {
     </div>
   )
 }
+
+    

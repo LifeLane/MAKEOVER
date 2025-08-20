@@ -160,12 +160,12 @@ export function WardrobeClient() {
           {items.map((item) => (
             <Card key={item.id} className="overflow-hidden group transition-all duration-300 hover:shadow-xl hover:scale-105">
               <CardContent className="p-0">
-                <div className="relative aspect-[3/4]">
+                <div className="relative aspect-[3/4] bg-muted/30">
                   <Image
                     src={item.imageUrl}
                     alt={item.name}
                     fill
-                    className="object-cover"
+                    className="object-contain"
                     data-ai-hint="clothing item"
                   />
                 </div>
@@ -192,3 +192,5 @@ export function WardrobeClient() {
     </>
   );
 }
+
+    
