@@ -13,8 +13,7 @@ import { Logo } from '@/components/logo';
 import { Toaster } from '@/components/ui/toaster';
 import './globals.css';
 import { BottomNav } from '@/components/bottom-nav';
-import { Button } from '@/components/ui/button';
-import { PanelLeft } from 'lucide-react';
+import { FloatingChatWidget } from '@/components/floating-chat-widget';
 
 export const metadata: Metadata = {
   title: 'Makeover',
@@ -55,6 +54,7 @@ export default function RootLayout({
           </SidebarInset>
           <BottomNav />
         </SidebarProvider>
+        <FloatingChatWidget />
         <Toaster />
       </body>
     </html>
