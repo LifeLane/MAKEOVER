@@ -117,7 +117,7 @@ export function StyleMyLook({ isOpen, onOpenChange, onSubmit }: StyleMyLookProps
 
         {capturedImage ? (
            <div className="space-y-4">
-            <div className="relative w-full aspect-[3/4] rounded-md overflow-hidden border bg-muted">
+            <div className="relative w-full aspect-video rounded-md overflow-hidden border bg-muted">
                 <Image src={capturedImage} alt="Captured preview" fill className="object-contain" />
             </div>
             <div className="flex gap-2">
