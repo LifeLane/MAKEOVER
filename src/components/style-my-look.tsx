@@ -34,7 +34,7 @@ export function StyleMyLook({ isOpen, onOpenChange, onSubmit }: StyleMyLookProps
 
   useEffect(() => {
     async function getCameraPermission() {
-      if (!isOpen || hasCameraPermission) return;
+      if (!isOpen) return;
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         if (videoRef.current) {
@@ -55,7 +55,7 @@ export function StyleMyLook({ isOpen, onOpenChange, onSubmit }: StyleMyLookProps
         stream.getTracks().forEach(track => track.stop());
       }
     };
-  }, [isOpen, hasCameraPermission]);
+  }, [isOpen]);
 
   const handleCapture = () => {
     if (videoRef.current && canvasRef.current) {
@@ -127,20 +127,18 @@ export function StyleMyLook({ isOpen, onOpenChange, onSubmit }: StyleMyLookProps
             <TabsTrigger value="upload"><Upload className="mr-2 h-4 w-4" /> Upload</TabsTrigger>
           </TabsList>
           <TabsContent value="camera" className="mt-4">
+            <div className="space-y-4">
+                <video ref={videoRef} className="w-full aspect-video rounded-md bg-muted" autoPlay muted playsInline />
+                <Button onClick={handleCapture} className="w-full" disabled={hasCameraPermission !== true}>Snap Photo</Button>
+            </div>
             {hasCameraPermission === false && (
-                <Alert variant="destructive">
+                <Alert variant="destructive" className="mt-4">
                     <AlertTitle>Camera Access Denied</AlertTitle>
                     <AlertDescription>
                         Please enable camera permissions in your browser settings to use this feature.
                     </AlertDescription>
                 </Alert>
             )}
-             {hasCameraPermission === true && (
-                <div className="space-y-4">
-                    <video ref={videoRef} className="w-full aspect-video rounded-md bg-muted" autoPlay muted playsInline />
-                    <Button onClick={handleCapture} className="w-full">Snap Photo</Button>
-                </div>
-             )}
              {hasCameraPermission === null && (
                  <div className="flex items-center justify-center h-40">
                      <Loader2 className="animate-spin" />
