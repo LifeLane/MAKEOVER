@@ -64,7 +64,7 @@ export default function RootLayout({
                  </ChatTrigger>
               </div>
             </header>
-            <main className="flex-1 p-4 pb-20 sm:p-6 md:pb-6">{children}</main>
+            <main className="flex-1 p-2 pb-20 sm:p-6 md:pb-6">{children}</main>
           </SidebarInset>
           <BottomNav />
         </SidebarProvider>
