@@ -165,15 +165,17 @@ export function DashboardClient() {
             <Card className="bg-gradient-to-br from-primary/10 to-background border-primary/20 shadow-lg">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 font-headline text-base sm:text-lg text-primary">
-                        <Wand2 /> Your Daily Suggestion
+                        <Wand2 /> Craft Your Signature Look
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="text-center space-y-3 p-4 pt-0">
-                     <p className="text-xs sm:text-sm text-foreground/80">
-                        Ready for your AI-powered look?
-                     </p>
-                     <Button size="sm" onClick={() => setIsQuizOpen(true)} disabled={isLoading}>
-                         {isLoading ? 'Generating...' : <> <Sparkles className="mr-2 h-4 w-4" /> Get Today's Look</>}
+                <CardContent className="space-y-4 p-4 pt-0">
+                    <ul className="text-xs sm:text-sm text-foreground/80 list-disc list-inside space-y-1">
+                        <li>Answer a few simple questions.</li>
+                        <li>Let our AI craft a look just for you.</li>
+                        <li>Discover your new favorite outfit!</li>
+                    </ul>
+                     <Button size="sm" onClick={() => setIsQuizOpen(true)} disabled={isLoading} className="w-full sm:w-auto">
+                         {isLoading ? 'Generating...' : <> <Sparkles className="mr-2 h-4 w-4" /> Start the Style Quiz</>}
                      </Button>
                 </CardContent>
             </Card>
