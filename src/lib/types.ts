@@ -53,3 +53,13 @@ export const StyleBotInputSchema = z.object({
   })).describe('The conversation history.'),
 });
 export type StyleBotInput = z.infer<typeof StyleBotInputSchema>;
+
+export const StyleQuizInputSchema = z.object({
+  gender: z.string(),
+  age: z.string(),
+  bodyType: z.string(),
+  skinTone: z.string(),
+  occasion: z.string(),
+  stylePreferences: z.array(z.string()),
+});
+export type StyleQuizInput = z.infer<typeof StyleQuizInputSchema>;

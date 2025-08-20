@@ -8,7 +8,7 @@ import { DailyOutfitSuggestionOutput } from '@/ai/flows/daily-outfit-suggestion'
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { OutfitCard } from '@/components/outfit-card';
-import { getDailyOutfit, getRegeneratedOutfit, fetchFashionFact } from '@/app/actions';
+import { getRegeneratedOutfit, fetchFashionFact, getStyleQuizOutfit } from '@/app/actions';
 import { Wand2, CalendarPlus, Shirt, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { RegenerateOutfitOutput } from '@/ai/flows/outfit-regeneration';
@@ -16,9 +16,10 @@ import { EventStylingOutput } from '@/ai/flows/event-styling';
 import { EmptyState } from './empty-state';
 import { getUserProfile, getWardrobeItems } from '@/services/localStorage';
 import { Skeleton } from './ui/skeleton';
-import { UserProfile, WardrobeItem } from '@/lib/types';
+import { UserProfile, WardrobeItem, StyleQuizInput } from '@/lib/types';
 import Image from 'next/image';
 import { useChat } from '@/hooks/use-chat';
+import { StyleQuiz } from './style-quiz';
 
 function FashionFact() {
   const [fact, setFact] = useState('');
@@ -56,6 +57,7 @@ export function DashboardClient() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [wardrobe, setWardrobe] = useState<WardrobeItem[]>([]);
   const { toast } = useToast();
+  const [isQuizOpen, setIsQuizOpen] = useState(false);
 
   useEffect(() => {
     setUserProfile(getUserProfile());
@@ -71,31 +73,23 @@ export function DashboardClient() {
   }, [generatedOutfit, setGeneratedOutfit]);
 
 
-  const handleGetSuggestion = async () => {
+  const handleGetQuizSuggestion = async (values: StyleQuizInput) => {
     setIsLoading(true);
     setOutfit(null);
+    setIsQuizOpen(false);
 
-    const profile = getUserProfile();
-    const wardrobeItems = getWardrobeItems();
+    const result = await getStyleQuizOutfit(values);
 
-    const input = {
-        ...profile,
-        age: profile.age || 25,
-        weather: 'Sunny, 25°C', 
-        trendingStyles: ['oversized blazers', 'wide-leg trousers'],
-        wardrobeItems,
-    };
-
-    const result = await getDailyOutfit(input);
     if (result.error) {
       toast({
         variant: 'destructive',
-        title: 'Error',
+        title: 'Error Generating Outfit',
         description: result.error,
       });
     } else {
       setOutfit(result);
     }
+
     setIsLoading(false);
   };
   
@@ -140,7 +134,13 @@ export function DashboardClient() {
   }
 
   return (
-    <div className="px-0">
+    <>
+      <StyleQuiz 
+        isOpen={isQuizOpen}
+        onOpenChange={setIsQuizOpen}
+        onSubmit={handleGetQuizSuggestion}
+      />
+      <div className="space-y-4">
        <div className="mb-4 space-y-1">
         <h1 className="text-xl font-headline text-primary-dark font-bold tracking-tight sm:text-2xl lg:text-3xl whitespace-nowrap">
           Welcome back, {userProfile.name || 'Fashionista'}!
@@ -173,7 +173,7 @@ export function DashboardClient() {
                      <p className="text-xs sm:text-sm text-foreground/80">
                         Ready for your AI-powered look?
                      </p>
-                     <Button size="sm" onClick={handleGetSuggestion} disabled={isLoading}>
+                     <Button size="sm" onClick={() => setIsQuizOpen(true)} disabled={isLoading}>
                          {isLoading ? 'Generating...' : <> <Sparkles className="mr-2 h-4 w-4" /> Get Today's Look</>}
                      </Button>
                 </CardContent>
@@ -215,6 +215,7 @@ export function DashboardClient() {
             </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

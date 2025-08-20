@@ -9,3 +9,4 @@ import '@/ai/flows/find-products.ts';
 import '@/ai/flows/style-bot.ts';
 import '@/ai/flows/fashion-fact.ts';
 import '@/ai/flows/visual-designer.ts';
+import '@/ai/flows/style-quiz-flow.ts';
