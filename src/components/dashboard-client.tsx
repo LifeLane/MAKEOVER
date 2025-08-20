@@ -18,6 +18,7 @@ import { getUserProfile, getWardrobeItems } from '@/services/localStorage';
 import { Skeleton } from './ui/skeleton';
 import { UserProfile, WardrobeItem } from '@/lib/types';
 import Image from 'next/image';
+import { useChat } from '@/hooks/use-chat';
 
 function FashionFact() {
   const [fact, setFact] = useState('');
@@ -49,6 +50,7 @@ function FashionFact() {
 
 
 export function DashboardClient() {
+  const { generatedOutfit, setGeneratedOutfit } = useChat();
   const [outfit, setOutfit] = useState<DailyOutfitSuggestionOutput | RegenerateOutfitOutput | EventStylingOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -59,6 +61,14 @@ export function DashboardClient() {
     setUserProfile(getUserProfile());
     setWardrobe(getWardrobeItems());
   }, []);
+
+  // Effect to handle outfits generated from the chat
+  useEffect(() => {
+    if (generatedOutfit) {
+      setOutfit(generatedOutfit);
+      setGeneratedOutfit(null); // Reset after displaying
+    }
+  }, [generatedOutfit, setGeneratedOutfit]);
 
 
   const handleGetSuggestion = async () => {
@@ -114,7 +124,7 @@ export function DashboardClient() {
 
   if (!userProfile) {
     return (
-        <div className="space-y-4 px-2 sm:px-4">
+        <div className="space-y-4">
             <div className="space-y-1">
                 <Skeleton className="h-6 w-48" />
                 <Skeleton className="h-4 w-64" />
@@ -131,7 +141,7 @@ export function DashboardClient() {
 
   return (
     <div className="px-0">
-       <div className="mb-4 space-y-1 px-2 sm:px-4">
+       <div className="mb-4 space-y-1">
         <h1 className="text-xl font-headline text-primary-dark font-bold tracking-tight sm:text-2xl lg:text-3xl whitespace-nowrap">
           Welcome back, {userProfile.name || 'Fashionista'}!
         </h1>
@@ -140,7 +150,7 @@ export function DashboardClient() {
         </p>
       </div>
 
-       <div className='mb-4 px-2 sm:px-4'>
+       <div className='mb-4'>
           <FashionFact />
        </div>
 
@@ -152,7 +162,7 @@ export function DashboardClient() {
           isRegenerate
         />
       ) : (
-        <div className="space-y-4 px-2 sm:px-4">
+        <div className="space-y-4">
             <Card className="bg-gradient-to-br from-primary/20 to-accent/20 border-2 border-primary/50 shadow-lg">
                 <CardHeader className="p-3">
                     <CardTitle className="flex items-center gap-2 font-headline text-base sm:text-lg text-primary">

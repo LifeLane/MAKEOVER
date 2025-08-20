@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -10,14 +10,14 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { SendHorizonal, Bot, User, Minimize2, Maximize2, X } from 'lucide-react';
+import { SendHorizonal, Bot, User, Minimize2, Maximize2, X, Sparkles, Loader, CheckCircle } from 'lucide-react';
 import { getStyleBotResponse } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { useChat, ChatSize } from '@/hooks/use-chat';
 import { useIsMobile } from '@/hooks/use-mobile';
-
+import { EventStylingOutput } from '@/ai/flows/event-styling';
 
 const formSchema = z.object({
   message: z.string().min(1, 'Message cannot be empty.'),
@@ -26,12 +26,50 @@ const formSchema = z.object({
 type Message = {
   sender: 'user' | 'bot';
   text: string;
+  outfit?: EventStylingOutput;
 };
 
 type Conversation = {
     user: string;
     bot: string;
 }
+
+const GeneratingSequence = ({ onComplete }: { onComplete: () => void }) => {
+  const steps = [
+    { text: 'Analyzing your request...', icon: <Loader className="animate-spin" /> },
+    { text: 'Consulting with the style council...', icon: <Sparkles className="animate-pulse" /> },
+    { text: 'Designing your look...', icon: <Loader className="animate-spin" /> },
+    { text: "Voilà! Here's your outfit.", icon: <CheckCircle /> },
+  ];
+  const [currentStep, setCurrentStep] = useState(0);
+
+  useEffect(() => {
+    if (currentStep < steps.length - 1) {
+      const timer = setTimeout(() => {
+        setCurrentStep(currentStep + 1);
+      }, 1500);
+      return () => clearTimeout(timer);
+    } else {
+      const finalTimer = setTimeout(onComplete, 1000);
+      return () => clearTimeout(finalTimer);
+    }
+  }, [currentStep, onComplete, steps.length]);
+
+  return (
+    <div className="flex items-start gap-3">
+        <Avatar className="w-8 h-8">
+            <AvatarFallback><Bot /></AvatarFallback>
+        </Avatar>
+        <div className="rounded-lg px-4 py-2 bg-muted">
+            <div className="flex items-center gap-2 text-sm">
+                {steps[currentStep].icon}
+                <p>{steps[currentStep].text}</p>
+            </div>
+        </div>
+    </div>
+  );
+};
+
 
 export function FloatingChatWidget() {
   const { 
@@ -42,12 +80,15 @@ export function FloatingChatWidget() {
     messages,
     setMessages,
     isLoading,
-    setIsLoading
+    setIsLoading,
+    setGeneratedOutfit
   } = useChat();
 
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedOutfitForSequence, setGeneratedOutfitForSequence] = useState<EventStylingOutput | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -69,7 +110,7 @@ export function FloatingChatWidget() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isOpen]);
+  }, [messages, isOpen, isGenerating]);
   
   useEffect(() => {
     if (isOpen) {
@@ -101,6 +142,8 @@ export function FloatingChatWidget() {
       history: conversationHistory,
     });
     
+    setIsLoading(false);
+
     if (result.error) {
       toast({
         variant: 'destructive',
@@ -109,11 +152,23 @@ export function FloatingChatWidget() {
       });
       setMessages((prev) => [...prev, {sender: 'bot', text: "Sorry, I'm having a little trouble right now. Please try again later."}]);
     } else {
-      const botMessage: Message = { sender: 'bot', text: result.response };
-      setMessages((prev) => [...prev, botMessage]);
+        const botMessage: Message = { sender: 'bot', text: result.response, outfit: result.outfit };
+        setMessages((prev) => [...prev, botMessage]);
+        
+        if (result.outfit) {
+            setGeneratedOutfitForSequence(result.outfit);
+            setIsGenerating(true);
+        }
     }
+  }
 
-    setIsLoading(false);
+  const handleGenerationComplete = () => {
+      if (generatedOutfitForSequence) {
+        setGeneratedOutfit(generatedOutfitForSequence);
+      }
+      setIsGenerating(false);
+      setGeneratedOutfitForSequence(null);
+      setIsOpen(false);
   }
 
   return (
@@ -153,8 +208,7 @@ export function FloatingChatWidget() {
             className={cn(
                 "fixed z-50 rounded-lg bg-card border shadow-xl flex flex-col",
                 "transition-all duration-300 ease-in-out",
-                 // Maximized state will be constrained by inset, normal is fixed size
-                size === ChatSize.Normal && !isMobile
+                 size === ChatSize.Normal && !isMobile
                   ? "bottom-24 right-6 w-[400px] h-[600px]" 
                   : "inset-4 md:inset-8" 
             )}
@@ -210,6 +264,7 @@ export function FloatingChatWidget() {
                     </div>
                   </div>
                 )}
+                 {isGenerating && <GeneratingSequence onComplete={handleGenerationComplete} />}
               </div>
             </ScrollArea>
             <footer className="p-4 border-t bg-card rounded-b-lg">
@@ -218,9 +273,9 @@ export function FloatingChatWidget() {
                   {...form.register('message')}
                   placeholder="Ask Mirror for advice..."
                   autoComplete="off"
-                  disabled={isLoading}
+                  disabled={isLoading || isGenerating}
                 />
-                <Button type="submit" size="icon" disabled={isLoading}>
+                <Button type="submit" size="icon" disabled={isLoading || isGenerating}>
                   <SendHorizonal />
                 </Button>
               </form>
