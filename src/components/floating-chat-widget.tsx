@@ -85,11 +85,12 @@ export function FloatingChatWidget() {
 
     const conversationHistory: Conversation[] = messages
         .slice(1) // Remove initial bot message
-        .reduce((acc, msg, i) => {
+        .reduce((acc, msg, i, arr) => {
             if (msg.sender === 'user') {
-                const botMsg = messages[i + 2]; // Corresponding bot message
-                if (botMsg && botMsg.sender === 'bot') {
-                    acc.push({ user: msg.text, bot: botMsg.text });
+                // Find the next bot message
+                const nextBotMsg = arr.slice(i + 1).find(m => m.sender === 'bot');
+                if (nextBotMsg) {
+                    acc.push({ user: msg.text, bot: nextBotMsg.text });
                 }
             }
             return acc;
@@ -117,22 +118,30 @@ export function FloatingChatWidget() {
 
   return (
     <>
-      <div className="fixed bottom-6 right-6 z-50">
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => setIsOpen(true)}
-          className={cn(
-            "w-16 h-16 bg-primary rounded-full shadow-lg flex items-center justify-center text-primary-foreground",
-            "transition-transform duration-300 ease-in-out",
-            !isOpen && "animate-pulse-slow",
-            "md:flex hidden" // Hide on mobile, show on md and up
-          )}
-          aria-label="Open Chat"
-        >
-          <Bot size={32} />
-        </motion.button>
-      </div>
+      <AnimatePresence>
+        {!isMobile && !isOpen && (
+             <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="fixed bottom-6 right-6 z-50"
+            >
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setIsOpen(true)}
+                className={cn(
+                  "w-16 h-16 bg-primary rounded-full shadow-lg flex items-center justify-center text-primary-foreground",
+                  "transition-transform duration-300 ease-in-out",
+                  !isOpen && "animate-pulse-slow"
+                )}
+                aria-label="Open Chat"
+              >
+                <Bot size={32} />
+              </motion.button>
+            </motion.div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {isOpen && (
@@ -147,10 +156,10 @@ export function FloatingChatWidget() {
                  // Maximized state will be constrained by inset, normal is fixed size
                 size === ChatSize.Normal && !isMobile
                   ? "bottom-24 right-6 w-[400px] h-[600px]" 
-                  : "inset-6 md:inset-10" 
+                  : "inset-4 md:inset-8" 
             )}
           >
-            <header className="p-4 border-b flex justify-between items-center cursor-move">
+            <header className="p-4 border-b flex justify-between items-center cursor-move bg-card rounded-t-lg">
               <h2 className="text-lg font-headline flex items-center gap-2"><Bot size={20}/> Mirror</h2>
               <div className="flex items-center gap-2">
                  <Button variant="ghost" size="icon" className="w-6 h-6" onClick={toggleSize}>
@@ -161,8 +170,8 @@ export function FloatingChatWidget() {
                  </Button>
               </div>
             </header>
-            <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-              <div className="space-y-6">
+            <ScrollArea className="flex-1 bg-background" ref={scrollAreaRef}>
+              <div className="space-y-6 p-4">
                 {messages.map((message, index) => (
                   <div
                     key={index}
@@ -203,7 +212,7 @@ export function FloatingChatWidget() {
                 )}
               </div>
             </ScrollArea>
-            <footer className="p-4 border-t bg-background">
+            <footer className="p-4 border-t bg-card rounded-b-lg">
               <form onSubmit={form.handleSubmit(onSubmit)} className="flex items-center gap-2">
                 <Input
                   {...form.register('message')}
