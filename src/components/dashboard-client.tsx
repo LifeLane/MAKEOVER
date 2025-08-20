@@ -43,7 +43,7 @@ function FashionFact() {
 
   return (
     <div className="text-left text-sm text-foreground/80 bg-background p-4 rounded-lg border">
-      <p className="first-letter:text-2xl first-letter:font-bold first-letter:text-primary first-letter:mr-1 first-letter:float-left">{fact}</p>
+      <p className="first-letter:text-4xl first-letter:font-bold first-letter:text-primary first-letter:mr-1 first-letter:float-left">{fact}</p>
     </div>
   );
 }
