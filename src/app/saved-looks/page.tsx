@@ -37,7 +37,7 @@ export default function SavedLooksPage() {
   
   if (isLoading) {
     return (
-       <div className="container mx-auto px-2 sm:px-4">
+       <div className="px-2 sm:px-4">
         <div className="mb-6 text-center sm:text-left">
           <h1 className="text-2xl font-headline font-bold text-primary lg:text-4xl">Saved Looks</h1>
           <p className="mt-2 text-sm text-foreground/80">Your collection of favorite styles.</p>
@@ -61,7 +61,7 @@ export default function SavedLooksPage() {
   }
 
   return (
-    <div className="container mx-auto px-2 sm:px-4">
+    <div className="px-2 sm:px-4">
       <div className="mb-6 text-center sm:text-left">
         <h1 className="text-2xl font-headline font-bold text-primary lg:text-4xl">Saved Looks</h1>
         <p className="mt-2 text-sm text-foreground/80">Your collection of favorite styles.</p>

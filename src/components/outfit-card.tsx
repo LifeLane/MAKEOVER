@@ -166,7 +166,7 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
   }
 
   return (
-    <Card className="overflow-hidden shadow-lg border-2 border-accent/20">
+    <Card className="overflow-hidden shadow-lg">
       <div className="grid grid-cols-1 md:grid-cols-2">
         <div className="relative aspect-square md:aspect-auto min-h-[500px]">
           {isLoading && !outfitImage ? (

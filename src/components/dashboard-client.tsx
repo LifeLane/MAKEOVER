@@ -40,7 +40,7 @@ function FashionFact() {
   }
 
   return (
-    <div className="flex items-center gap-3 text-left text-xs sm:text-sm italic text-foreground/80 bg-accent/30 p-3 rounded-lg">
+    <div className="flex items-center gap-3 text-left text-sm text-foreground/80 bg-accent/30 p-3 rounded-lg">
        <Sparkles className="text-primary w-5 h-5 shrink-0"/>
       <p>{fact}</p>
     </div>
@@ -114,7 +114,7 @@ export function DashboardClient() {
 
   if (!userProfile) {
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 px-2 sm:px-4">
             <div className="space-y-1">
                 <Skeleton className="h-6 w-48" />
                 <Skeleton className="h-4 w-64" />
@@ -130,8 +130,8 @@ export function DashboardClient() {
   }
 
   return (
-    <div className="container mx-auto px-0">
-       <div className="mb-4 space-y-1">
+    <div className="px-0">
+       <div className="mb-4 space-y-1 px-2 sm:px-4">
         <h1 className="text-xl font-headline text-primary-dark font-bold tracking-tight sm:text-2xl lg:text-3xl whitespace-nowrap">
           Welcome back, {userProfile.name || 'Fashionista'}!
         </h1>
@@ -140,7 +140,7 @@ export function DashboardClient() {
         </p>
       </div>
 
-       <div className='mb-4'>
+       <div className='mb-4 px-2 sm:px-4'>
           <FashionFact />
        </div>
 
@@ -152,7 +152,7 @@ export function DashboardClient() {
           isRegenerate
         />
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-4 px-2 sm:px-4">
             <Card className="bg-gradient-to-br from-primary/20 to-accent/20 border-2 border-primary/50 shadow-lg">
                 <CardHeader className="p-3">
                     <CardTitle className="flex items-center gap-2 font-headline text-base sm:text-lg text-primary">
