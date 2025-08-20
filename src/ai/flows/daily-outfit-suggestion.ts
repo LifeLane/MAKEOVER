@@ -79,6 +79,7 @@ User's Wardrobe:
 Instructions:
 1.  Suggest a complete outfit, including clothing items and colors.
 2.  Prioritize using items from the user's wardrobe if available.
+3.  Provide a creative title for the outfit.
 `, 
   config: {
     safetySettings: [
