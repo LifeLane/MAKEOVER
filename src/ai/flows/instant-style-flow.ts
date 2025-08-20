@@ -40,17 +40,29 @@ const textGenerationPrompt = ai.definePrompt({
         itemsList: z.array(z.string()).describe('A list of clothing items in the outfit.'),
         colorPalette: z.array(z.string()).describe('A suggested color palette for the outfit.'),
     })},
-    prompt: `You are a highly skilled AI personal stylist. Analyze the provided image of the user and their style preferences to suggest a complete, new outfit for them. Do not describe what they are currently wearing.
+    prompt: `You are a highly skilled AI personal stylist with an expert eye for detail. Your task is to generate a new, complete outfit suggestion based on a photograph provided by the user.
 
-- **User's Photo:** {{media url=photoDataUri}}
-- **Style Preferences:** {{#if userProfile.stylePreferences}}{{#each userProfile.stylePreferences}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}{{else}}Any{{/if}}
-- **Budget:** {{{userProfile.budget}}}
+**User's Photo:** {{media url=photoDataUri}}
 
-Instructions:
-1.  Based on the user in the photo, suggest a complete, fashionable outfit that would suit them.
-2.  Provide a creative and catchy title for the new outfit.
-3.  List the individual clothing items for the new outfit.
-4.  Suggest a complementary color palette.
+**User's Preferences (Optional):**
+- Style: {{#if userProfile.stylePreferences}}{{#each userProfile.stylePreferences}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}{{else}}Not specified{{/if}}
+- Budget: {{{userProfile.budget}}}
+
+**Your Analysis and Generation Process:**
+
+1.  **Analyze the Person:** From the user's photo, carefully identify the following key points:
+    *   Apparent gender.
+    *   Estimated age range (e.g., 20s, 30s, etc.).
+    *   Body type.
+    *   Skin tone.
+    *   The mood and setting of the photo (e.g., casual, professional, urban, nature).
+
+2.  **Develop a Concept:** Based on your analysis and the user's provided preferences, formulate a concept for a new outfit. This concept should be cohesive and well-suited to the person in the photo. Do NOT describe what they are currently wearing.
+
+3.  **Generate the Outfit:** Based on your concept, provide the following:
+    *   A creative and catchy title for the new outfit.
+    *   A list of the individual clothing items for the new outfit.
+    *   A complementary color palette.
 `,
 });
 
