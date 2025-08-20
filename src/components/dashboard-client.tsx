@@ -38,13 +38,12 @@ function FashionFact() {
   }, []);
 
   if (isLoading) {
-    return <Skeleton className="h-12 w-full" />;
+    return <Skeleton className="h-16 w-full" />;
   }
 
   return (
-    <div className="flex items-center gap-3 text-left text-sm text-foreground/80 bg-accent/30 p-3 rounded-lg">
-       <Sparkles className="text-primary w-5 h-5 shrink-0"/>
-      <p>{fact}</p>
+    <div className="text-left text-sm text-foreground/80 bg-background p-4 rounded-lg border">
+      <p className="first-letter:text-2xl first-letter:font-bold first-letter:text-primary first-letter:mr-1 first-letter:float-left">{fact}</p>
     </div>
   );
 }
@@ -134,7 +133,7 @@ export function DashboardClient() {
   }
 
   return (
-    <>
+    <div className="space-y-6">
       <StyleQuiz 
         isOpen={isQuizOpen}
         onOpenChange={setIsQuizOpen}
@@ -163,13 +162,13 @@ export function DashboardClient() {
         />
       ) : (
         <div className="space-y-4">
-            <Card className="bg-gradient-to-br from-primary/20 to-accent/20 border-2 border-primary/50 shadow-lg">
-                <CardHeader className="p-3">
+            <Card className="bg-gradient-to-br from-primary/10 to-background border-primary/20 shadow-lg">
+                <CardHeader>
                     <CardTitle className="flex items-center gap-2 font-headline text-base sm:text-lg text-primary">
                         <Wand2 /> Your Daily Suggestion
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="text-center space-y-2 p-3 pt-0">
+                <CardContent className="text-center space-y-3 p-4 pt-0">
                      <p className="text-xs sm:text-sm text-foreground/80">
                         Ready for your AI-powered look?
                      </p>
@@ -180,26 +179,26 @@ export function DashboardClient() {
             </Card>
 
             <div className="grid gap-4 md:grid-cols-2">
-                <Card className="hover:shadow-xl transition-shadow">
-                     <CardHeader className="p-3">
+                <Card className="hover:shadow-xl transition-shadow duration-300">
+                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 font-headline text-sm sm:text-base text-primary">
                            <CalendarPlus /> Plan for an Event
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-2 p-3 pt-0">
+                    <CardContent className="space-y-3 p-4 pt-0">
                         <p className='text-foreground/80 text-xs'>Have a special occasion? Get the perfect outfit.</p>
                         <Button asChild variant="outline" size="sm">
                             <Link href="/event-styling">Go to Event Styling</Link>
                         </Button>
                     </CardContent>
                 </Card>
-                 <Card className="hover:shadow-xl transition-shadow">
-                     <CardHeader className="p-3">
+                 <Card className="hover:shadow-xl transition-shadow duration-300">
+                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 font-headline text-sm sm:text-base text-primary">
                            <Shirt /> Your Wardrobe
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-2 p-3 pt-0">
+                    <CardContent className="space-y-3 p-4 pt-0">
                         <div className='flex -space-x-2 rtl:space-x-reverse h-8 items-center'>
                             {wardrobe.slice(0, 4).map((item) => (
                                 <Image key={item.id} src={item.imageUrl} alt={item.name} width={32} height={32} className='w-8 h-8 rounded-full border-2 border-white object-cover' data-ai-hint="clothing item" />
@@ -216,6 +215,6 @@ export function DashboardClient() {
         </div>
       )}
       </div>
-    </>
+    </div>
   );
 }
