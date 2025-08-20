@@ -8,18 +8,19 @@ import { DailyOutfitSuggestionOutput } from '@/ai/flows/daily-outfit-suggestion'
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { OutfitCard } from '@/components/outfit-card';
-import { getRegeneratedOutfit, fetchFashionFact, getStyleQuizOutfit } from '@/app/actions';
-import { Wand2, CalendarPlus, Shirt, Sparkles, Heart } from 'lucide-react';
+import { getRegeneratedOutfit, fetchFashionFact, getStyleQuizOutfit, getInstantStyle } from '@/app/actions';
+import { Wand2, CalendarPlus, Heart, Sparkles, Camera } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { RegenerateOutfitOutput } from '@/ai/flows/outfit-regeneration';
 import { EventStylingOutput } from '@/ai/flows/event-styling';
-import { EmptyState } from './empty-state';
 import { getUserProfile, getWardrobeItems } from '@/services/localStorage';
 import { Skeleton } from './ui/skeleton';
 import { UserProfile, WardrobeItem, StyleQuizInput } from '@/lib/types';
 import Image from 'next/image';
 import { useChat } from '@/hooks/use-chat';
 import { StyleQuiz } from './style-quiz';
+import { StyleMyLook } from './style-my-look';
+import { InstantStyleOutput } from '@/ai/flows/instant-style-flow';
 
 function FashionFact() {
   const [fact, setFact] = useState('');
@@ -51,12 +52,13 @@ function FashionFact() {
 
 export function DashboardClient() {
   const { generatedOutfit, setGeneratedOutfit } = useChat();
-  const [outfit, setOutfit] = useState<DailyOutfitSuggestionOutput | RegenerateOutfitOutput | EventStylingOutput | null>(null);
+  const [outfit, setOutfit] = useState<DailyOutfitSuggestionOutput | RegenerateOutfitOutput | EventStylingOutput | InstantStyleOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [wardrobe, setWardrobe] = useState<WardrobeItem[]>([]);
   const { toast } = useToast();
   const [isQuizOpen, setIsQuizOpen] = useState(false);
+  const [isStylerOpen, setIsStylerOpen] = useState(false);
 
   useEffect(() => {
     setUserProfile(getUserProfile());
@@ -92,6 +94,26 @@ export function DashboardClient() {
     setIsLoading(false);
   };
   
+  const handleGetInstantStyle = async (photoDataUri: string) => {
+    if (!userProfile) return;
+    setIsLoading(true);
+    setOutfit(null);
+    setIsStylerOpen(false);
+
+    const result = await getInstantStyle({ photoDataUri, userProfile: { stylePreferences: userProfile.stylePreferences, budget: userProfile.budget } });
+
+     if (result.error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error Generating Style',
+        description: result.error,
+      });
+    } else {
+      setOutfit(result);
+    }
+    setIsLoading(false);
+  }
+
   const handleRegenerate = async (feedback: string) => {
     setIsLoading(true);
     const currentSuggestion = outfit ? ('outfitSuggestion' in outfit ? outfit.outfitSuggestion : '') : '';
@@ -139,6 +161,11 @@ export function DashboardClient() {
         onOpenChange={setIsQuizOpen}
         onSubmit={handleGetQuizSuggestion}
       />
+      <StyleMyLook 
+        isOpen={isStylerOpen}
+        onOpenChange={setIsStylerOpen}
+        onSubmit={handleGetInstantStyle}
+      />
       <div className="space-y-4">
        <div className="mb-4 space-y-1">
         <h1 className="text-xl font-headline text-primary-dark font-bold tracking-tight sm:text-2xl lg:text-3xl whitespace-nowrap">
@@ -162,23 +189,34 @@ export function DashboardClient() {
         />
       ) : (
         <div className="space-y-4">
-            <Card className="bg-gradient-to-br from-primary/10 to-background border-primary/20 shadow-lg">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 font-headline text-base sm:text-lg text-primary">
-                        <Wand2 /> Craft Your Signature Look
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 p-4 pt-0">
-                    <ul className="text-xs sm:text-sm text-foreground/80 list-disc list-inside space-y-1">
-                        <li>Answer a few simple questions.</li>
-                        <li>Let our AI craft a look just for you.</li>
-                        <li>Discover your new favorite outfit!</li>
-                    </ul>
-                     <Button size="sm" onClick={() => setIsQuizOpen(true)} disabled={isLoading} className="w-full sm:w-auto">
-                         {isLoading ? 'Generating...' : <> <Sparkles className="mr-2 h-4 w-4" /> Start the Style Quiz</>}
-                     </Button>
-                </CardContent>
-            </Card>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Card className="bg-gradient-to-br from-primary/10 to-background border-primary/20 shadow-lg">
+                  <CardHeader>
+                      <CardTitle className="flex items-center gap-2 font-headline text-base sm:text-lg text-primary">
+                          <Wand2 /> Craft Your Look
+                      </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2 p-4 pt-0">
+                      <p className='text-xs sm:text-sm text-foreground/80'>Answer a few questions to get a personalized style.</p>
+                       <Button size="sm" onClick={() => setIsQuizOpen(true)} disabled={isLoading} className="w-full sm:w-auto">
+                           {isLoading ? 'Generating...' : <> <Sparkles className="mr-2 h-4 w-4" /> Start Style Quiz</>}
+                       </Button>
+                  </CardContent>
+              </Card>
+               <Card className="bg-gradient-to-br from-accent/10 to-background border-accent/20 shadow-lg">
+                  <CardHeader>
+                      <CardTitle className="flex items-center gap-2 font-headline text-base sm:text-lg text-accent">
+                          <Camera /> Instant Style
+                      </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2 p-4 pt-0">
+                      <p className='text-xs sm:text-sm text-foreground/80'>Use your camera or upload a photo for an instant look.</p>
+                       <Button size="sm" variant="outline" onClick={() => setIsStylerOpen(true)} disabled={isLoading} className="w-full sm:w-auto border-accent text-accent hover:bg-accent hover:text-accent-foreground">
+                           {isLoading ? 'Generating...' : <> <Camera className="mr-2 h-4 w-4" /> Style My Look</>}
+                       </Button>
+                  </CardContent>
+              </Card>
+            </div>
 
             <div className="grid gap-4 md:grid-cols-2">
                 <Card className="hover:shadow-xl transition-shadow duration-300">

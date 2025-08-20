@@ -8,6 +8,7 @@ import { getAccessoryTips, AccessoryTipsInput, AccessoryTipsOutput } from '@/ai/
 import { styleBot, StyleBotInput, StyleBotOutput } from '@/ai/flows/style-bot';
 import { getFashionFact, FashionFactInput, FashionFactOutput } from '@/ai/flows/fashion-fact';
 import { generateVisualDesign as generateVisualDesignFlow, VisualDesignerInput, VisualDesignerOutput } from '@/ai/flows/visual-designer';
+import { instantStyle, InstantStyleInput, InstantStyleOutput } from '@/ai/flows/instant-style-flow';
 import { UserProfile, StyleQuizInput } from '@/lib/types';
 import { styleQuiz, StyleQuizOutput } from '@/ai/flows/style-quiz-flow';
 
@@ -106,5 +107,15 @@ export async function getStyleQuizOutfit(input: StyleQuizInput): Promise<ActionR
   } catch (error) {
     console.error(error);
     return { error: 'Failed to generate outfit from quiz.' };
+  }
+}
+
+export async function getInstantStyle(input: InstantStyleInput): Promise<ActionResponse<InstantStyleOutput>> {
+  try {
+    const result = await instantStyle(input);
+    return result;
+  } catch (error) {
+    console.error(error);
+    return { error: 'Failed to generate instant style.' };
   }
 }
