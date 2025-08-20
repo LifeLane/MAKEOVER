@@ -54,15 +54,21 @@ const steps = [
   },
   {
     id: 'occasion',
-    title: 'What\'s the occasion?',
+    title: "What's the occasion?",
     fields: ['occasion'],
   },
   {
     id: 'style',
-    title: 'What\'s your vibe?',
+    title: "What's your vibe?",
     description: 'Choose one or more styles that you resonate with.',
     fields: ['stylePreferences'],
   },
+  {
+    id: 'colors',
+    title: 'Which colors do you prefer?',
+    description: 'Select a few colors you love to wear.',
+    fields: ['colorPreferences'],
+  }
 ];
 
 const stylePreferences = [
@@ -72,6 +78,17 @@ const stylePreferences = [
     { id: "preppy", label: "Preppy & Polished" },
     { id: "edgy", label: "Edgy & Bold" },
     { id: "vintage", label: "Vintage & Retro" },
+    { id: "minimalist", label: "Minimalist" },
+    { id: "streetwear", label: "Streetwear" },
+]
+
+const colorPreferences = [
+    { id: "neutrals", label: "Neutrals (black, white, grey)" },
+    { id: "earthy", label: "Earthy Tones (brown, olive, beige)" },
+    { id: "pastels", label: "Pastels (light pink, baby blue)" },
+    { id: "brights", label: "Bright & Bold (red, royal blue)" },
+    { id: "jewel", label: "Jewel Tones (emerald, sapphire)" },
+    { id: "monochromatic", label: "Monochromatic (all one color)" },
 ]
 
 export function StyleQuiz({ isOpen, onOpenChange, onSubmit }: StyleQuizProps) {
@@ -86,6 +103,7 @@ export function StyleQuiz({ isOpen, onOpenChange, onSubmit }: StyleQuizProps) {
       skinTone: '',
       occasion: '',
       stylePreferences: [],
+      colorPreferences: [],
     },
   });
 
@@ -258,7 +276,53 @@ export function StyleQuiz({ isOpen, onOpenChange, onSubmit }: StyleQuizProps) {
                                             checked={field.value?.includes(item.id)}
                                             onCheckedChange={(checked) => {
                                               return checked
-                                                ? field.onChange([...field.value, item.id])
+                                                ? field.onChange([...(field.value || []), item.id])
+                                                : field.onChange(
+                                                    field.value?.filter(
+                                                      (value) => value !== item.id
+                                                    )
+                                                  )
+                                            }}
+                                          />
+                                        </FormControl>
+                                        <FormLabel className="font-normal">
+                                          {item.label}
+                                        </FormLabel>
+                                      </FormItem>
+                                    )
+                                  }}
+                                />
+                              ))}
+                            </div>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                )}
+                 {currentStep === 5 && (
+                     <FormField
+                        control={form.control}
+                        name="colorPreferences"
+                        render={() => (
+                          <FormItem className="pt-4">
+                            <div className="grid grid-cols-2 gap-4">
+                              {colorPreferences.map((item) => (
+                                <FormField
+                                  key={item.id}
+                                  control={form.control}
+                                  name="colorPreferences"
+                                  render={({ field }) => {
+                                    return (
+                                      <FormItem
+                                        key={item.id}
+                                        className="flex flex-row items-start space-x-3 space-y-0"
+                                      >
+                                        <FormControl>
+                                          <Checkbox
+                                            checked={field.value?.includes(item.id)}
+                                            onCheckedChange={(checked) => {
+                                              return checked
+                                                ? field.onChange([...(field.value || []), item.id])
                                                 : field.onChange(
                                                     field.value?.filter(
                                                       (value) => value !== item.id

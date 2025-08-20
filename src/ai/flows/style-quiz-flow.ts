@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A flow for generating an outfit from a style quiz.
@@ -42,12 +43,13 @@ User's Style Profile:
 - Skin Tone: {{{skinTone}}}
 - Occasion: {{{occasion}}}
 - Style Preferences: {{#each stylePreferences}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
+- Color Preferences: {{#each colorPreferences}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
 
 Instructions:
 1.  Based on all the details provided, suggest a complete, fashionable outfit.
 2.  Provide a creative and catchy title for the outfit.
 3.  List the individual clothing items.
-4.  Suggest a complementary color palette.
+4.  Suggest a complementary color palette that incorporates the user's preferences.
 `,
 });
 
@@ -67,7 +69,7 @@ const styleQuizFlow = ai.defineFlow(
     }
 
     // 2. Generate an image based on the new design description.
-    const imageGenerationPrompt = `A high-fashion, editorial photograph of a model wearing this outfit: ${textOutput.itemsList.join(', ')}. The model is a ${input.gender}, with a ${input.bodyType} build and ${input.skinTone} skin tone. The style is ${input.stylePreferences.join(', ')} and suitable for ${input.occasion}.`;
+    const imageGenerationPrompt = `A high-fashion, editorial photograph of a model wearing this outfit: ${textOutput.itemsList.join(', ')}. The model is a ${input.gender}, with a ${input.bodyType} build and ${input.skinTone} skin tone. The style is ${input.stylePreferences.join(', ')} and suitable for ${input.occasion}. The color palette should favor: ${input.colorPreferences.join(', ')}.`;
     
     const { media } = await ai.generate({
       model: 'googleai/gemini-2.0-flash-preview-image-generation',

@@ -1,3 +1,4 @@
+
 import { z } from 'zod';
 
 export type UserProfile = {
@@ -55,11 +56,12 @@ export const StyleBotInputSchema = z.object({
 export type StyleBotInput = z.infer<typeof StyleBotInputSchema>;
 
 export const StyleQuizInputSchema = z.object({
-  gender: z.string(),
-  age: z.string(),
-  bodyType: z.string(),
-  skinTone: z.string(),
-  occasion: z.string(),
-  stylePreferences: z.array(z.string()),
+  gender: z.string().min(1, 'Please select a gender.'),
+  age: z.string().min(1, 'Please select an age group.'),
+  bodyType: z.string().min(1, 'Please select a body type.'),
+  skinTone: z.string().min(1, 'Please select a skin tone.'),
+  occasion: z.string().min(1, 'Please select an occasion.'),
+  stylePreferences: z.array(z.string()).min(1, 'Please select at least one style.'),
+  colorPreferences: z.array(z.string()).min(1, 'Please select at least one color preference.'),
 });
 export type StyleQuizInput = z.infer<typeof StyleQuizInputSchema>;
