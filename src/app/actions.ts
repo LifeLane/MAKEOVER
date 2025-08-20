@@ -7,6 +7,7 @@ import { findProducts, FindProductsOutput, FindProductsInput } from '@/ai/flows/
 import { getAccessoryTips, AccessoryTipsInput, AccessoryTipsOutput } from '@/ai/flows/accessory-tips';
 import { styleBot, StyleBotInput, StyleBotOutput } from '@/ai/flows/style-bot';
 import { getFashionFact, FashionFactInput, FashionFactOutput } from '@/ai/flows/fashion-fact';
+import { generateVisualDesign as generateVisualDesignFlow, VisualDesignerInput, VisualDesignerOutput } from '@/ai/flows/visual-designer';
 import { UserProfile } from '@/lib/types';
 
 
@@ -86,3 +87,14 @@ export async function fetchFashionFact(date: string): Promise<ActionResponse<Fas
         return { error: 'Failed to fetch fashion fact.' };
     }
 }
+
+export async function generateVisualDesign(input: VisualDesignerInput): Promise<ActionResponse<VisualDesignerOutput>> {
+    try {
+        const result = await generateVisualDesignFlow(input);
+        return result;
+    } catch (error) {
+        console.error(error);
+        return { error: 'Failed to generate visual design.' };
+    }
+}
+

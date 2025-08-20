@@ -14,12 +14,14 @@ import {
   Shirt,
   Heart,
   User,
+  Palette,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const menuItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/event-styling', label: 'Events', icon: CalendarPlus },
+  { href: '/visual-designer', label: 'Designer', icon: Palette },
   { href: '/wardrobe', label: 'Wardrobe', icon: Shirt },
   { href: '/saved-looks', label: 'Saved', icon: Heart },
   { href: '/profile', label: 'Profile', icon: User },
