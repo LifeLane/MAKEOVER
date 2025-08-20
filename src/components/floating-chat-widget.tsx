@@ -145,7 +145,7 @@ export function FloatingChatWidget() {
                 "fixed z-50 rounded-lg bg-card border shadow-xl flex flex-col",
                 "transition-all duration-300 ease-in-out",
                  // Maximized state will be constrained by inset, normal is fixed size
-                size === ChatSize.Normal 
+                size === ChatSize.Normal && !isMobile
                   ? "bottom-24 right-6 w-[400px] h-[600px]" 
                   : "inset-6 md:inset-10" 
             )}
