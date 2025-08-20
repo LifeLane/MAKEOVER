@@ -33,10 +33,19 @@ export function StyleMyLook({ isOpen, onOpenChange, onSubmit }: StyleMyLookProps
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    let stream: MediaStream | null = null;
     async function getCameraPermission() {
-      if (!isOpen) return;
+      if (!isOpen) {
+        // Stop stream when dialog is closed
+         if (videoRef.current && videoRef.current.srcObject) {
+            const mediaStream = videoRef.current.srcObject as MediaStream;
+            mediaStream.getTracks().forEach(track => track.stop());
+            videoRef.current.srcObject = null;
+        }
+        return;
+      }
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
         }
@@ -49,9 +58,8 @@ export function StyleMyLook({ isOpen, onOpenChange, onSubmit }: StyleMyLookProps
     getCameraPermission();
 
     return () => {
-      // Cleanup: stop video stream when component unmounts or dialog closes
-      if (videoRef.current && videoRef.current.srcObject) {
-        const stream = videoRef.current.srcObject as MediaStream;
+      // Cleanup: stop video stream when component unmounts
+      if (stream) {
         stream.getTracks().forEach(track => track.stop());
       }
     };
@@ -109,7 +117,7 @@ export function StyleMyLook({ isOpen, onOpenChange, onSubmit }: StyleMyLookProps
 
         {capturedImage ? (
            <div className="space-y-4">
-            <div className="relative w-full aspect-[3/4] rounded-md overflow-hidden border">
+            <div className="relative w-full aspect-[3/4] rounded-md overflow-hidden border bg-muted">
                 <Image src={capturedImage} alt="Captured preview" fill className="object-contain" />
             </div>
             <div className="flex gap-2">
@@ -128,7 +136,9 @@ export function StyleMyLook({ isOpen, onOpenChange, onSubmit }: StyleMyLookProps
           </TabsList>
           <TabsContent value="camera" className="mt-4">
             <div className="space-y-4">
-                <video ref={videoRef} className="w-full aspect-video rounded-md bg-muted" autoPlay muted playsInline />
+                <div className="w-full aspect-video rounded-md bg-muted overflow-hidden">
+                    <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+                </div>
                 <Button onClick={handleCapture} className="w-full" disabled={hasCameraPermission !== true}>Snap Photo</Button>
             </div>
             {hasCameraPermission === false && (
