@@ -1,9 +1,10 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SavedLook } from '@/lib/types';
-import { fetchSavedLooks } from '@/app/actions';
+import { getSavedLooks } from '@/services/localStorage';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -16,19 +17,20 @@ export default function SavedLooksPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const loadLooks = async () => {
+    const loadLooks = () => {
       setIsLoading(true);
-      const result = await fetchSavedLooks();
-      if (result.error) {
-        toast({
+      try {
+        const savedLooks = getSavedLooks();
+        setLooks(savedLooks);
+      } catch (error) {
+         toast({
           variant: 'destructive',
           title: 'Error fetching saved looks',
-          description: result.error,
+          description: 'Could not retrieve looks from local storage.',
         });
-      } else {
-        setLooks(result.looks);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
     loadLooks();
   }, [toast]);

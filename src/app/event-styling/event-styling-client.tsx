@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -15,6 +16,7 @@ import { getEventOutfit, getRegeneratedOutfit } from '@/app/actions';
 import type { EventStylingOutput } from '@/ai/flows/event-styling';
 import { useToast } from '@/hooks/use-toast';
 import type { RegenerateOutfitOutput } from '@/ai/flows/outfit-regeneration';
+import { getUserProfile, getWardrobeItems } from '@/services/localStorage';
 
 const formSchema = z.object({
   occasion: z.string().min(2, { message: 'Occasion is required.' }),
@@ -41,7 +43,17 @@ export function EventStylingClient() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     setOutfit(null);
-    const result = await getEventOutfit(values);
+    const userProfile = getUserProfile();
+    const wardrobeItems = getWardrobeItems();
+
+    const input = {
+      ...userProfile,
+      age: userProfile.age || 25,
+      ...values,
+      wardrobeItems,
+    };
+
+    const result = await getEventOutfit(input);
     if (result.error) {
        toast({
         variant: 'destructive',

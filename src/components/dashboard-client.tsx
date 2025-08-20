@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DailyOutfitSuggestionOutput } from '@/ai/flows/daily-outfit-suggestion';
 import { Button } from '@/components/ui/button';
 import { OutfitCard } from '@/components/outfit-card';
@@ -10,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { RegenerateOutfitOutput } from '@/ai/flows/outfit-regeneration';
 import { EventStylingOutput } from '@/ai/flows/event-styling';
 import { EmptyState } from './empty-state';
+import { getUserProfile, getWardrobeItems } from '@/services/localStorage';
 
 export function DashboardClient() {
   const [outfit, setOutfit] = useState<DailyOutfitSuggestionOutput | RegenerateOutfitOutput | EventStylingOutput | null>(null);
@@ -19,7 +21,19 @@ export function DashboardClient() {
   const handleGetSuggestion = async () => {
     setIsLoading(true);
     setOutfit(null);
-    const result = await getDailyOutfit();
+
+    const userProfile = getUserProfile();
+    const wardrobeItems = getWardrobeItems();
+
+    const input = {
+        ...userProfile,
+        age: userProfile.age || 25,
+        weather: 'Sunny, 25°C', 
+        trendingStyles: ['oversized blazers', 'wide-leg trousers'],
+        wardrobeItems,
+    };
+
+    const result = await getDailyOutfit(input);
     if (result.error) {
       toast({
         variant: 'destructive',
@@ -72,9 +86,8 @@ export function DashboardClient() {
             description="Click the button to generate a personalized outfit suggestion just for you."
             icon={<Wand2 className="w-12 h-12" />}
         >
-            <Button size="lg" onClick={handleGetSuggestion}>
-                <Wand2 className="mr-2 h-5 w-5" />
-                Get Today's Suggestion
+            <Button size="lg" onClick={handleGetSuggestion} disabled={isLoading}>
+                 {isLoading ? 'Generating...' : <> <Wand2 className="mr-2 h-5 w-5" /> Get Today's Suggestion</>}
             </Button>
         </EmptyState>
       )}

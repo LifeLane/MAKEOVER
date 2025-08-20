@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -6,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Heart, RefreshCw, Wand2, Palette, Shirt, ShoppingBag } from 'lucide-react';
+import { Heart, RefreshCw, Wand2, Palette, Shirt, ShoppingBag, Copy, Download } from 'lucide-react';
 import { DailyOutfitSuggestionOutput } from '@/ai/flows/daily-outfit-suggestion';
 import { useToast } from '@/hooks/use-toast';
 import { RegenerateOutfitOutput } from '@/ai/flows/outfit-regeneration';
@@ -14,8 +15,9 @@ import { EventStylingOutput } from '@/ai/flows/event-styling';
 import { Input } from './ui/input';
 import { useState, useEffect } from 'react';
 import type { Product, UserProfile } from '@/lib/types';
-import { getProductsForOutfit, saveGeneratedLook, fetchUserProfile, fetchAccessoryTips } from '@/app/actions';
+import { getProductsForOutfit, fetchAccessoryTips } from '@/app/actions';
 import { DEFAULT_USER_PROFILE } from '@/lib/constants';
+import { saveLook, getUserProfile } from '@/services/localStorage';
 
 type Outfit = DailyOutfitSuggestionOutput | RegenerateOutfitOutput | EventStylingOutput;
 
@@ -36,11 +38,7 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
   const [isFetchingTips, setIsFetchingTips] = useState(false);
 
   useEffect(() => {
-    fetchUserProfile().then(res => {
-      if (!res.error) {
-        setUserProfile(res);
-      }
-    })
+    setUserProfile(getUserProfile());
   }, []);
 
   const outfitImage = outfit && ('outfitImage' in outfit ? outfit.outfitImage : 'imageUrl' in outfit ? outfit.imageUrl : '');
@@ -84,7 +82,7 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
     }
   }, [outfit, userProfile.gender, userProfile.stylePreferences, toast]);
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!outfit) return;
 
     const lookToSave = {
@@ -96,17 +94,17 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
       occasion: 'daily', // This could be improved to be more dynamic
     };
 
-    const result = await saveGeneratedLook(lookToSave);
-     if (result.error) {
-      toast({
-        variant: 'destructive',
-        title: 'Error Saving Look',
-        description: result.error,
-      });
-    } else {
+    try {
+      saveLook(lookToSave);
       toast({
         title: 'Look Saved!',
         description: 'You can find your saved looks in the "Saved" section.',
+      });
+    } catch (error) {
+       toast({
+        variant: 'destructive',
+        title: 'Error Saving Look',
+        description: 'Could not save look to local storage.',
       });
     }
   };
@@ -124,6 +122,40 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
     onRegenerate(regenerationInput);
     setRegenerationInput('');
   };
+
+  const handleCopy = () => {
+    if (!outfit) return;
+    const detailsToCopy = `
+      Outfit: ${outfitSuggestion}
+      Items: ${itemsList.join(', ')}
+      Color Palette: ${colorPalette.join(', ')}
+      Accessory Tips: ${accessoryTips || 'N/A'}
+    `.trim();
+    navigator.clipboard.writeText(detailsToCopy);
+    toast({
+      title: 'Copied to Clipboard!',
+    });
+  }
+
+  const handleDownload = async () => {
+    if (!outfitImage) return;
+    try {
+      // Since the image is a data URI, we can create a link and click it.
+      const link = document.createElement('a');
+      link.href = outfitImage;
+      link.download = `${outfitSuggestion.replace(/\s+/g, '_') || 'outfit'}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Download Failed',
+        description: 'Could not download the image.'
+      });
+    }
+  }
+
 
   if (isLoading && !outfit) {
     return <LoadingSkeleton />;
@@ -144,11 +176,18 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
               src={outfitImage || 'https://placehold.co/600x800.png'}
               alt="Suggested outfit"
               fill
-              objectFit="cover"
-              className="transition-transform duration-300 hover:scale-105"
+              className="object-cover transition-transform duration-300 hover:scale-105"
               data-ai-hint="fashion outfit"
             />
           )}
+           <div className="absolute top-4 right-4 flex flex-col gap-2">
+            <Button size="icon" variant="secondary" onClick={handleDownload} title="Download Image">
+              <Download />
+            </Button>
+            <Button size="icon" variant="secondary" onClick={handleCopy} title="Copy Details">
+              <Copy />
+            </Button>
+          </div>
         </div>
         <div className="flex flex-col">
           <CardHeader>

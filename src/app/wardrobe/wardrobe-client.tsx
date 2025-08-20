@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -19,7 +20,7 @@ import { Upload, Shirt } from 'lucide-react';
 import { WardrobeItem } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
-import { fetchWardrobeItems, addWardrobeItem } from '@/app/actions';
+import { getWardrobeItems, saveWardrobeItem } from '@/services/localStorage';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -47,42 +48,41 @@ export function WardrobeClient() {
     resolver: zodResolver(newItemSchema),
   });
 
-  const loadItems = async () => {
-    // No need to set loading true here if we want to avoid flicker on add
-    const result = await fetchWardrobeItems();
-    if (result.error) {
+  const loadItems = () => {
+    try {
+      const wardrobeItems = getWardrobeItems();
+      setItems(wardrobeItems);
+    } catch (error) {
       toast({
         variant: 'destructive',
         title: 'Error fetching wardrobe',
-        description: result.error,
+        description: 'Could not retrieve items from local storage.',
       });
-    } else {
-      setItems(result.items);
     }
-    setIsLoading(false);
   };
 
   useEffect(() => {
     setIsLoading(true);
     loadItems();
+    setIsLoading(false);
   }, []);
 
-  const onAddItem: SubmitHandler<NewItemForm> = async (data) => {
-    const result = await addWardrobeItem(data);
-    if (result.error) {
-      toast({
-        variant: 'destructive',
-        title: 'Error adding item',
-        description: result.error,
-      });
-    } else {
+  const onAddItem: SubmitHandler<NewItemForm> = (data) => {
+    try {
+      saveWardrobeItem(data);
       toast({
         title: 'Item Added!',
         description: 'Your new item has been added to your wardrobe.',
       });
       setIsFormOpen(false);
       reset();
-      await loadItems(); // Refresh the list
+      loadItems(); // Refresh the list
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error adding item',
+        description: 'Could not save item to local storage.',
+      });
     }
   };
 
