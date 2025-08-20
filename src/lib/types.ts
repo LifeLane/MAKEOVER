@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 export type UserProfile = {
   name: string;
   photoUrl: string;
@@ -42,3 +44,12 @@ export type Outfit = {
     imageUrl?: string;
     accessoryTips?: string;
 }
+
+export const StyleBotInputSchema = z.object({
+  message: z.string().describe('The user\'s message to the bot.'),
+  history: z.array(z.object({
+    user: z.string(),
+    bot: z.string(),
+  })).describe('The conversation history.'),
+});
+export type StyleBotInput = z.infer<typeof StyleBotInputSchema>;

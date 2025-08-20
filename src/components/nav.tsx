@@ -14,6 +14,7 @@ import {
   Shirt,
   Heart,
   User,
+  MessageSquare,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -22,6 +23,7 @@ export const menuItems = [
   { href: '/event-styling', label: 'Events', icon: CalendarPlus },
   { href: '/wardrobe', label: 'Wardrobe', icon: Shirt },
   { href: '/saved-looks', label: 'Saved', icon: Heart },
+  { href: '/style-bot', label: 'Style Bot', icon: MessageSquare },
   { href: '/profile', label: 'Profile', icon: User },
 ];
 

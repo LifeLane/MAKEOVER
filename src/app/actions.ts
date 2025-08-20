@@ -4,6 +4,7 @@ import { eventStyling, EventStylingInput, EventStylingOutput } from '@/ai/flows/
 import { regenerateOutfit, RegenerateOutfitInput, RegenerateOutfitOutput } from '@/ai/flows/outfit-regeneration';
 import { findProducts, FindProductsOutput, FindProductsInput } from '@/ai/flows/find-products';
 import { getAccessoryTips, AccessoryTipsInput, AccessoryTipsOutput } from '@/ai/flows/accessory-tips';
+import { styleBot, StyleBotInput, StyleBotOutput } from '@/ai/flows/style-bot';
 import { UserProfile, Product, SavedLook, WardrobeItem } from '@/lib/types';
 import { DEFAULT_USER_PROFILE } from '@/lib/constants';
 import { getUserProfile, saveUserProfile, getSavedLooks, getWardrobeItems, saveLook, saveWardrobeItem } from '@/services/firestore';
@@ -83,6 +84,17 @@ export async function fetchAccessoryTips(data: AccessoryTipsInput): Promise<Acti
     return { error: 'Failed to fetch accessory tips.' };
   }
 }
+
+export async function getStyleBotResponse(data: StyleBotInput): Promise<ActionResponse<StyleBotOutput>> {
+  try {
+    const result = await styleBot(data);
+    return result;
+  } catch (error) {
+    console.error(error);
+    return { error: 'Failed to get response from Style Bot.' };
+  }
+}
+
 
 export async function saveUserProfileData(profile: UserProfile): Promise<ActionResponse<{}>> {
   try {
