@@ -126,7 +126,7 @@ export function FloatingChatWidget() {
             "w-16 h-16 bg-primary rounded-full shadow-lg flex items-center justify-center text-primary-foreground",
             "transition-transform duration-300 ease-in-out",
             !isOpen && "animate-pulse-slow",
-            isMobile && "hidden"
+            "md:flex hidden" // Hide on mobile, show on md and up
           )}
           aria-label="Open Chat"
         >
@@ -144,7 +144,10 @@ export function FloatingChatWidget() {
             className={cn(
                 "fixed z-50 rounded-lg bg-card border shadow-xl flex flex-col",
                 "transition-all duration-300 ease-in-out",
-                size === ChatSize.Normal ? "bottom-24 right-6 w-[400px] h-[600px]" : "bottom-6 right-6 left-6 top-6"
+                 // Maximized state will be constrained by inset, normal is fixed size
+                size === ChatSize.Normal 
+                  ? "bottom-24 right-6 w-[400px] h-[600px]" 
+                  : "inset-6 md:inset-10" 
             )}
           >
             <header className="p-4 border-b flex justify-between items-center cursor-move">
