@@ -36,11 +36,11 @@ function FashionFact() {
   }, []);
 
   if (isLoading) {
-    return <Skeleton className="h-5 w-full" />;
+    return <Skeleton className="h-12 w-full" />;
   }
 
   return (
-    <div className="flex items-center gap-3 text-xs sm:text-sm text-center italic text-foreground/80 bg-accent/30 p-3 rounded-lg">
+    <div className="flex items-center gap-3 text-xs text-left sm:text-sm italic text-foreground/80 bg-accent/30 p-3 rounded-lg">
        <Sparkles className="text-primary w-5 h-5 shrink-0"/>
       <p>{fact}</p>
     </div>
@@ -155,15 +155,15 @@ export function DashboardClient() {
         <div className="space-y-6">
             <Card className="bg-gradient-to-br from-primary/20 to-accent/20 border-2 border-primary/50 shadow-lg">
                 <CardHeader className="p-4">
-                    <CardTitle className="flex items-center gap-2 font-headline text-xl text-primary">
+                    <CardTitle className="flex items-center gap-2 font-headline text-lg sm:text-xl text-primary">
                         <Wand2 /> Your Daily Suggestion
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="text-center space-y-3 p-4 pt-0">
-                     <p className="text-base text-foreground/80">
+                     <p className="text-sm sm:text-base text-foreground/80">
                         Ready for your AI-powered look?
                      </p>
-                     <Button size="default" onClick={handleGetSuggestion} disabled={isLoading}>
+                     <Button size="sm" onClick={handleGetSuggestion} disabled={isLoading}>
                          {isLoading ? 'Generating...' : <> <Sparkles className="mr-2 h-5 w-5" /> Get Today's Look</>}
                      </Button>
                 </CardContent>
@@ -172,12 +172,12 @@ export function DashboardClient() {
             <div className="grid gap-4 md:grid-cols-2">
                 <Card className="hover:shadow-xl transition-shadow">
                      <CardHeader className="p-4">
-                        <CardTitle className="flex items-center gap-2 font-headline text-lg text-primary">
+                        <CardTitle className="flex items-center gap-2 font-headline text-base sm:text-lg text-primary">
                            <CalendarPlus /> Plan for an Event
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3 p-4 pt-0">
-                        <p className='text-foreground/80 text-sm'>Have a special occasion? Get the perfect outfit.</p>
+                        <p className='text-foreground/80 text-xs sm:text-sm'>Have a special occasion? Get the perfect outfit.</p>
                         <Button asChild variant="outline" size="sm">
                             <Link href="/event-styling">Go to Event Styling</Link>
                         </Button>
@@ -185,7 +185,7 @@ export function DashboardClient() {
                 </Card>
                  <Card className="hover:shadow-xl transition-shadow">
                      <CardHeader className="p-4">
-                        <CardTitle className="flex items-center gap-2 font-headline text-lg text-primary">
+                        <CardTitle className="flex items-center gap-2 font-headline text-base sm:text-lg text-primary">
                            <Shirt /> Your Wardrobe
                         </CardTitle>
                     </CardHeader>
@@ -196,7 +196,7 @@ export function DashboardClient() {
                             ))}
                             {wardrobe.length === 0 && <p className='text-sm text-muted-foreground'>Your closet is empty.</p>}
                         </div>
-                        <p className='text-foreground/80 text-sm'>Manage your virtual closet with {wardrobe.length} items.</p>
+                        <p className='text-foreground/80 text-xs sm:text-sm'>Manage your virtual closet with {wardrobe.length} items.</p>
                          <Button asChild variant="outline" size="sm">
                             <Link href="/wardrobe">View Wardrobe</Link>
                         </Button>
