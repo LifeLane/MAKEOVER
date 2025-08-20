@@ -70,7 +70,7 @@ const instantStyleFlow = ai.defineFlow(
     }
 
     // 2. Generate an image based on the new design description.
-    const imageGenerationPrompt = `A high-fashion, editorial photograph of a model wearing this outfit: ${textOutput.itemsList.join(', ')}. The style is ${input.userProfile.stylePreferences?.join(', ') || 'fashionable'}. The image should look professional and stylish.`;
+    const imageGenerationPrompt = `A high-fashion, editorial photograph of a model wearing this outfit: ${textOutput.itemsList.join(', ')}. The style is ${input.userProfile.stylePreferences && input.userProfile.stylePreferences.length > 0 ? input.userProfile.stylePreferences.join(', ') : 'fashionable'}. The image should look professional and stylish.`;
     
     const { media } = await ai.generate({
       model: 'googleai/gemini-2.0-flash-preview-image-generation',
