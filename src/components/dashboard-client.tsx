@@ -40,7 +40,7 @@ function FashionFact() {
   }
 
   return (
-    <div className="flex items-center gap-3 text-xs text-left sm:text-sm italic text-foreground/80 bg-accent/30 p-3 rounded-lg">
+    <div className="flex items-center gap-3 text-left text-xs sm:text-sm italic text-foreground/80 bg-accent/30 p-3 rounded-lg">
        <Sparkles className="text-primary w-5 h-5 shrink-0"/>
       <p>{fact}</p>
     </div>
@@ -114,16 +114,16 @@ export function DashboardClient() {
 
   if (!userProfile) {
     return (
-        <div className="space-y-6">
-            <div className="space-y-2">
-                <Skeleton className="h-7 w-56" />
-                <Skeleton className="h-4 w-72" />
+        <div className="space-y-4">
+            <div className="space-y-1">
+                <Skeleton className="h-6 w-48" />
+                <Skeleton className="h-4 w-64" />
             </div>
-            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-9 w-full" />
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                <Skeleton className="h-32 w-full rounded-lg" />
-                <Skeleton className="h-32 w-full rounded-lg" />
-                <Skeleton className="h-32 w-full rounded-lg" />
+                <Skeleton className="h-28 w-full rounded-lg" />
+                <Skeleton className="h-28 w-full rounded-lg" />
+                <Skeleton className="h-28 w-full rounded-lg" />
             </div>
         </div>
     );
@@ -131,16 +131,16 @@ export function DashboardClient() {
 
   return (
     <div className="container mx-auto">
-       <div className="mb-6 space-y-1">
-        <h1 className="text-2xl font-headline text-primary-dark font-bold tracking-tight lg:text-3xl whitespace-nowrap">
+       <div className="mb-4 space-y-1">
+        <h1 className="text-xl font-headline text-primary-dark font-bold tracking-tight lg:text-3xl whitespace-nowrap">
           Welcome back, {userProfile.name || 'Fashionista'}!
         </h1>
-        <p className="text-base text-foreground/80">
+        <p className="text-sm text-foreground/80">
           Your daily style snapshot is ready.
         </p>
       </div>
 
-       <div className='mb-6'>
+       <div className='mb-4'>
           <FashionFact />
        </div>
 
@@ -152,51 +152,51 @@ export function DashboardClient() {
           isRegenerate
         />
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
             <Card className="bg-gradient-to-br from-primary/20 to-accent/20 border-2 border-primary/50 shadow-lg">
-                <CardHeader className="p-4">
-                    <CardTitle className="flex items-center gap-2 font-headline text-lg sm:text-xl text-primary">
+                <CardHeader className="p-3">
+                    <CardTitle className="flex items-center gap-2 font-headline text-base sm:text-lg text-primary">
                         <Wand2 /> Your Daily Suggestion
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="text-center space-y-3 p-4 pt-0">
-                     <p className="text-sm sm:text-base text-foreground/80">
+                <CardContent className="text-center space-y-2 p-3 pt-0">
+                     <p className="text-xs sm:text-sm text-foreground/80">
                         Ready for your AI-powered look?
                      </p>
                      <Button size="sm" onClick={handleGetSuggestion} disabled={isLoading}>
-                         {isLoading ? 'Generating...' : <> <Sparkles className="mr-2 h-5 w-5" /> Get Today's Look</>}
+                         {isLoading ? 'Generating...' : <> <Sparkles className="mr-2 h-4 w-4" /> Get Today's Look</>}
                      </Button>
                 </CardContent>
             </Card>
 
             <div className="grid gap-4 md:grid-cols-2">
                 <Card className="hover:shadow-xl transition-shadow">
-                     <CardHeader className="p-4">
-                        <CardTitle className="flex items-center gap-2 font-headline text-base sm:text-lg text-primary">
+                     <CardHeader className="p-3">
+                        <CardTitle className="flex items-center gap-2 font-headline text-sm sm:text-base text-primary">
                            <CalendarPlus /> Plan for an Event
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-3 p-4 pt-0">
-                        <p className='text-foreground/80 text-xs sm:text-sm'>Have a special occasion? Get the perfect outfit.</p>
+                    <CardContent className="space-y-2 p-3 pt-0">
+                        <p className='text-foreground/80 text-xs'>Have a special occasion? Get the perfect outfit.</p>
                         <Button asChild variant="outline" size="sm">
                             <Link href="/event-styling">Go to Event Styling</Link>
                         </Button>
                     </CardContent>
                 </Card>
                  <Card className="hover:shadow-xl transition-shadow">
-                     <CardHeader className="p-4">
-                        <CardTitle className="flex items-center gap-2 font-headline text-base sm:text-lg text-primary">
+                     <CardHeader className="p-3">
+                        <CardTitle className="flex items-center gap-2 font-headline text-sm sm:text-base text-primary">
                            <Shirt /> Your Wardrobe
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-3 p-4 pt-0">
-                        <div className='flex -space-x-2 rtl:space-x-reverse h-10 items-center'>
+                    <CardContent className="space-y-2 p-3 pt-0">
+                        <div className='flex -space-x-2 rtl:space-x-reverse h-8 items-center'>
                             {wardrobe.slice(0, 4).map((item) => (
-                                <Image key={item.id} src={item.imageUrl} alt={item.name} width={40} height={40} className='w-10 h-10 rounded-full border-2 border-white object-cover' data-ai-hint="clothing item" />
+                                <Image key={item.id} src={item.imageUrl} alt={item.name} width={32} height={32} className='w-8 h-8 rounded-full border-2 border-white object-cover' data-ai-hint="clothing item" />
                             ))}
-                            {wardrobe.length === 0 && <p className='text-sm text-muted-foreground'>Your closet is empty.</p>}
+                            {wardrobe.length === 0 && <p className='text-xs text-muted-foreground'>Your closet is empty.</p>}
                         </div>
-                        <p className='text-foreground/80 text-xs sm:text-sm'>Manage your virtual closet with {wardrobe.length} items.</p>
+                        <p className='text-foreground/80 text-xs'>Manage your virtual closet with {wardrobe.length} items.</p>
                          <Button asChild variant="outline" size="sm">
                             <Link href="/wardrobe">View Wardrobe</Link>
                         </Button>

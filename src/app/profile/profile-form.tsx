@@ -75,25 +75,25 @@ export function ProfileForm() {
   if (isLoading) {
     return (
        <Card className="max-w-4xl mx-auto shadow-lg">
-          <CardHeader><CardTitle className="font-headline text-2xl text-primary">Edit Profile</CardTitle></CardHeader>
-          <CardContent className="space-y-8">
-            <div className="flex items-center gap-6">
-              <Skeleton className="h-24 w-24 rounded-full" />
-              <Skeleton className="h-10 w-32" />
+          <CardHeader><CardTitle className="font-headline text-xl md:text-2xl text-primary">Edit Profile</CardTitle></CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-center gap-4">
+              <Skeleton className="h-20 w-20 rounded-full" />
+              <Skeleton className="h-9 w-28" />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Skeleton className="h-9 w-full" />
+              <Skeleton className="h-9 w-full" />
+              <Skeleton className="h-9 w-full" />
+              <Skeleton className="h-9 w-full" />
+              <Skeleton className="h-9 w-full" />
+              <Skeleton className="h-9 w-full" />
             </div>
-            <Skeleton className="h-20 w-full" />
-            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-16 w-full" />
           </CardContent>
           <CardFooter>
-            <Skeleton className="h-10 w-32" />
+            <Skeleton className="h-9 w-28" />
           </CardFooter>
        </Card>
     )
@@ -104,23 +104,23 @@ export function ProfileForm() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardHeader>
-            <CardTitle className="font-headline text-2xl text-primary">Edit Profile</CardTitle>
+            <CardTitle className="font-headline text-xl md:text-2xl text-primary">Edit Profile</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-8">
-            <div className="flex items-center gap-6">
-              <Avatar className="h-24 w-24">
+          <CardContent className="space-y-6">
+            <div className="flex items-center gap-4">
+              <Avatar className="h-20 w-20">
                 <AvatarImage src={form.watch('photoUrl') || ''} />
                 <AvatarFallback>
                   {form.watch('name')?.charAt(0) || 'U'}
                 </AvatarFallback>
               </Avatar>
-              <Button type="button" variant="outline">
+              <Button type="button" variant="outline" size="sm">
                 <Upload className="mr-2 h-4 w-4" />
                 Upload Photo
               </Button>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField name="name" control={form.control} render={({ field }) => (
                 <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
               )} />

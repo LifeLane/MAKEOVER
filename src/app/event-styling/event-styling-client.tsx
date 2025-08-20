@@ -93,12 +93,12 @@ export function EventStylingClient() {
     <>
       <Card className="max-w-2xl mx-auto mb-8 shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline text-2xl text-primary">Event Details</CardTitle>
+          <CardTitle className="font-headline text-xl md:text-2xl text-primary">Event Details</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="occasion"

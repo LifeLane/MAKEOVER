@@ -88,13 +88,13 @@ export function WardrobeClient() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {[...Array(5)].map((_, i) => (
           <Card key={i} className="overflow-hidden group">
             <CardContent className="p-0">
               <Skeleton className="relative aspect-[3/4] w-full" />
-              <div className="p-4 bg-card">
-                <Skeleton className="h-5 w-3/4 mb-2" />
+              <div className="p-3 bg-card">
+                <Skeleton className="h-5 w-3/4 mb-1.5" />
                 <Skeleton className="h-4 w-1/2" />
               </div>
             </CardContent>
@@ -109,7 +109,7 @@ export function WardrobeClient() {
       <div className="text-right mb-6">
         <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button size="sm">
               <Upload className="mr-2 h-4 w-4" />
               Upload Item
             </Button>
@@ -156,7 +156,7 @@ export function WardrobeClient() {
       </div>
 
       {items.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {items.map((item) => (
             <Card key={item.id} className="overflow-hidden group transition-all duration-300 hover:shadow-xl hover:scale-105">
               <CardContent className="p-0">
@@ -169,9 +169,9 @@ export function WardrobeClient() {
                     data-ai-hint="clothing item"
                   />
                 </div>
-                <div className="p-4 bg-card">
-                  <h3 className="font-semibold truncate">{item.name}</h3>
-                  <p className="text-sm text-muted-foreground">{item.category}</p>
+                <div className="p-3 bg-card">
+                  <h3 className="font-semibold truncate text-sm">{item.name}</h3>
+                  <p className="text-xs text-muted-foreground">{item.category}</p>
                 </div>
               </CardContent>
             </Card>
