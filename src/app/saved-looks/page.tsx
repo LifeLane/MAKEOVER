@@ -37,10 +37,10 @@ export default function SavedLooksPage() {
   
   if (isLoading) {
     return (
-       <div className="container mx-auto">
+       <div className="container mx-auto px-2 sm:px-4">
         <div className="mb-6 text-center sm:text-left">
-          <h1 className="text-3xl font-headline font-bold text-primary lg:text-4xl">Saved Looks</h1>
-          <p className="mt-2 text-base text-foreground/80">Your collection of favorite styles.</p>
+          <h1 className="text-2xl font-headline font-bold text-primary lg:text-4xl">Saved Looks</h1>
+          <p className="mt-2 text-sm text-foreground/80">Your collection of favorite styles.</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(3)].map((_, i) => (
@@ -61,10 +61,10 @@ export default function SavedLooksPage() {
   }
 
   return (
-    <div className="container mx-auto">
+    <div className="container mx-auto px-2 sm:px-4">
       <div className="mb-6 text-center sm:text-left">
-        <h1 className="text-3xl font-headline font-bold text-primary lg:text-4xl">Saved Looks</h1>
-        <p className="mt-2 text-base text-foreground/80">Your collection of favorite styles.</p>
+        <h1 className="text-2xl font-headline font-bold text-primary lg:text-4xl">Saved Looks</h1>
+        <p className="mt-2 text-sm text-foreground/80">Your collection of favorite styles.</p>
       </div>
       
       {looks.length > 0 ? (
