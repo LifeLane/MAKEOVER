@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { OutfitCard } from '@/components/outfit-card';
 import { getRegeneratedOutfit, fetchFashionFact, getStyleQuizOutfit } from '@/app/actions';
-import { Wand2, CalendarPlus, Shirt, Sparkles } from 'lucide-react';
+import { Wand2, CalendarPlus, Shirt, Sparkles, Heart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { RegenerateOutfitOutput } from '@/ai/flows/outfit-regeneration';
 import { EventStylingOutput } from '@/ai/flows/event-styling';
@@ -197,7 +197,7 @@ export function DashboardClient() {
                  <Card className="hover:shadow-xl transition-shadow duration-300">
                      <CardHeader>
                         <CardTitle className="flex items-center gap-2 font-headline text-sm sm:text-base text-primary">
-                           <Shirt /> Your Wardrobe
+                           <Heart /> Your Collection
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3 p-4 pt-0">
@@ -205,11 +205,11 @@ export function DashboardClient() {
                             {wardrobe.slice(0, 4).map((item) => (
                                 <Image key={item.id} src={item.imageUrl} alt={item.name} width={32} height={32} className='w-8 h-8 rounded-full border-2 border-white object-cover' data-ai-hint="clothing item" />
                             ))}
-                            {wardrobe.length === 0 && <p className='text-xs text-muted-foreground'>Your closet is empty.</p>}
+                            {wardrobe.length === 0 && <p className='text-xs text-muted-foreground'>Your collection is empty.</p>}
                         </div>
-                        <p className='text-foreground/80 text-xs'>Manage your virtual closet with {wardrobe.length} items.</p>
+                        <p className='text-foreground/80 text-xs'>Manage your saved looks and closet items.</p>
                          <Button asChild variant="outline" size="sm">
-                            <Link href="/wardrobe">View Wardrobe</Link>
+                            <Link href="/collection">View Collection</Link>
                         </Button>
                     </CardContent>
                 </Card>
