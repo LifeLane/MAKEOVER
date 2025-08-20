@@ -125,7 +125,7 @@ export function FloatingChatWidget() {
           className={cn(
             "w-16 h-16 bg-primary rounded-full shadow-lg flex items-center justify-center text-primary-foreground",
             "transition-transform duration-300 ease-in-out",
-            "animate-pulse-slow"
+            !isOpen && "animate-pulse-slow"
           )}
           aria-label="Open Chat"
         >

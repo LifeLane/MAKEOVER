@@ -276,7 +276,7 @@ export function OutfitCard({ outfit, isLoading, onRegenerate, isRegenerate = fal
 
 function ProductCard({ product }: { product: Product }) {
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden transition-all duration-300 hover:shadow-md hover:scale-105">
         <CardContent className="p-0">
             <div className="relative aspect-[3/4]">
                 {product.imageUrl ? 

@@ -70,7 +70,7 @@ export default function SavedLooksPage() {
       {looks.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {looks.map((look) => (
-            <Card key={look.id} className="overflow-hidden group shadow-lg">
+            <Card key={look.id} className="overflow-hidden group shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-105">
               <CardHeader>
                 <CardTitle className="font-headline text-xl">{look.occasion}</CardTitle>
               </CardHeader>
@@ -80,7 +80,7 @@ export default function SavedLooksPage() {
                     src={look.imageUrl}
                     alt={look.outfitSuggestion}
                     fill
-                    className="object-cover transition-transform duration-300 group-hover:scale-110"
+                    className="object-cover"
                     data-ai-hint="fashion outfit"
                   />
                 </div>
